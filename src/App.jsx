@@ -13,11 +13,13 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-
+import Divider from '@mui/material/Divider';
+import Button from '@mui/material/Button';
 
 export default function App() {
     const [type, setType] = React.useState("");
     const [rows, setRows] = React.useState([{ name: '', type: '', blanks: '' }]);
+    const [format, setFormat] = React.useState('JSON');
 
     const handleChange = (event) => {
         const chosenValue = event.target.value;
@@ -26,6 +28,10 @@ export default function App() {
 
     const handleAddRow = () => {
         setRows(prevRows => [...prevRows, { name: '', type: '', blanks: '' }]);
+    };
+
+    const handleFormatChange = (event) => {
+        setFormat(event.target.value);
     };
 
     // Define a function to render input fields based on options
@@ -120,7 +126,28 @@ export default function App() {
                     </div>
                 </div>
             ))}
+
             <AddCircleIcon onClick={handleAddRow} style={{ marginLeft: 'auto', cursor: 'pointer' }} />
+
+
+            {/* Generate Data Button with Format Dropdown Picker */}
+            <Divider style={{ margin: '20px 0' }} />
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Button variant="contained" color="primary" style={{ marginRight: '10px' }}>
+                    Generate Data
+                </Button>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <InputLabel style={{ marginRight: '10px' }}>Format:</InputLabel>
+                    <Select
+                        value={format}
+                        onChange={handleFormatChange}
+                        label="Format"
+                    >
+                        <MenuItem value="JSON">JSON</MenuItem>
+                        <MenuItem value="SQL">SQL</MenuItem>
+                    </Select>
+                </div>
+            </div>
         </>
     );
 }
