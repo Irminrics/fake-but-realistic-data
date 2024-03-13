@@ -35,39 +35,51 @@ export default function App() {
         }
     
         // Render input fields based on options
-        return selectedInputTypeInfo.options.map(option => {
-            switch (option) {
-                case 'address-line-text':
-                    return <TextField key={option} id="address-line-text" label="Address Line" variant="outlined" />;
-                case 'min-num-text':
-                    return <TextField key={option} id="min-num-text" label="Min Number" inputProps={{ type: 'number'}} />;
-                case 'max-num-text':
-                    return <TextField key={option} id="max-num-text" label="Max Number" inputProps={{ type: 'number'}} />;
-                default:
-                    return null;
-            }
-        });
+        return (
+            <div style={{ display: 'flex' }}>
+                {selectedInputTypeInfo.options.map(option => {
+                    switch (option) {
+                        case 'address-line-text':
+                            return <TextField key={option} id="address-line-text" label="Address Line" variant="outlined" />;
+                        case 'min-num-text':
+                            return <TextField key={option} id="min-num-text" label="Min Number" inputProps={{ type: 'number'}} />;
+                        case 'max-num-text':
+                            return <TextField key={option} id="max-num-text" label="Max Number" inputProps={{ type: 'number'}} />;
+                        default:
+                            return null;
+                    }
+                })}
+            </div>
+        );
     };
 
     return (
         <>
             <Welcome/>
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                <div style={{ minWidth: 250, marginLeft: '10px', flex: 3 }}>Row Name</div>
+                <div style={{ minWidth: 200, flex: 2, marginLeft: '10px' }}>Input Type</div>
+                <div style={{ minWidth: 200, flex: 2, marginLeft: '10px' }}>Blanks</div>
+                <div style={{ flex: 4, marginLeft: '10px' }}>Other Options</div>
+            </div>
             {rows.map((row, index) => (
-                <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
+                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                     {/* Row Name */}
                     <TextField
+                        sx={{minWidth: 250, flex: 2, marginLeft: '10px' }}
                         value={row.name}
                         onChange={(e) => {
                             const newName = e.target.value;
                             setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
                         }}
-                        label="Row Name"
+                        label=""
                         variant="outlined"
+                        style={{ flex: 3 }}
                     />
 
                     {/* Dropdown Type Selector */}
-                    <FormControl sx={{minWidth: 150}}>
-                        <InputLabel id={`select-type-label-${index}`}>Type</InputLabel>
+                    <FormControl sx={{minWidth: 200, flex: 2, marginLeft: '10px' }}>
+                        <InputLabel id={`select-type-label-${index}`}></InputLabel>
                         <Select
                             labelId={`select-type-label-${index}`}
                             value={row.type}
@@ -76,7 +88,7 @@ export default function App() {
                                 setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, type: newType } : r));
                             }}
                             autoWidth
-                            label="type"
+                            label=""
                         >
                             {basicInputTypes.map((type, idx) => (
                                 <MenuItem key={idx} value={type.name}>{type.name}</MenuItem>
@@ -86,22 +98,29 @@ export default function App() {
                     
                     {/* Percentage of Blanks Input */}
                     <TextField
+                        sx={{minWidth: 200, flex: 2, marginLeft: '10px' }}
                         value={row.blanks}
                         onChange={(e) => {
                             const newBlanks = e.target.value;
                             setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
                         }}
-                        label="Percentage of Blanks"
-                        InputProps={{ type: 'number', endAdornment: '%' }}
+                        label=""
+                        InputProps={{
+                            type: 'number',
+                            endAdornment: '%',
+                            inputProps: { min: 0, max: 100 }
+                        }}
+                        style={{ flex: 1, marginLeft: '10px' }}
+                        placeholder="0"
                     />
 
-                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
-
-                    {index === rows.length - 1 && (
-                        <AddCircleIcon onClick={handleAddRow} style={{ marginLeft: 'auto', cursor: 'pointer' }} />
-                    )}
+                    {/* Other Options */}
+                    <div style={{ flex: 4, marginLeft: '10px' }}>
+                        {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
+                    </div>
                 </div>
             ))}
+            <AddCircleIcon onClick={handleAddRow} style={{ marginLeft: 'auto', cursor: 'pointer' }} />
         </>
     );
 }

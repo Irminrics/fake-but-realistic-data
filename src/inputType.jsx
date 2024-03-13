@@ -92,7 +92,7 @@ export const basicInputTypes = [
     {
         name: 'Number',
         description: '0.25, 5.2, 1000',
-        options: []
+        options: ['min-num-text', 'max-num-text']
     },
     {
         name: 'Paragraphs',
