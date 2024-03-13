@@ -1,76 +1,107 @@
 import * as React from 'react';
-import Welcome from "./components/Header"
+import Welcome from './components/Header'
+import { basicInputTypes } from './inputType';
+
 import TextField from '@mui/material/TextField'
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+
+
 export default function App() {
-    const [type, setType] = React.useState('');
+    const [type, setType] = React.useState("");
+    const [rows, setRows] = React.useState([{ name: '', type: '', blanks: '' }]);
 
     const handleChange = (event) => {
-      setType(event.target.value);
+        const chosenValue = event.target.value;
+        setType(chosenValue);
+    };
+
+    const handleAddRow = () => {
+        setRows(prevRows => [...prevRows, { name: '', type: '', blanks: '' }]);
+    };
+
+    // Define a function to render input fields based on options
+    const renderInputFields = (selectedInputTypeInfo) => {
+        if (!selectedInputTypeInfo || !selectedInputTypeInfo.options || selectedInputTypeInfo.options.length === 0) {
+            return null;
+        }
+    
+        // Render input fields based on options
+        return selectedInputTypeInfo.options.map(option => {
+            switch (option) {
+                case 'address-line-text':
+                    return <TextField key={option} id="address-line-text" label="Address Line" variant="outlined" />;
+                case 'min-num-text':
+                    return <TextField key={option} id="min-num-text" label="Min Number" inputProps={{ type: 'number'}} />;
+                case 'max-num-text':
+                    return <TextField key={option} id="max-num-text" label="Max Number" inputProps={{ type: 'number'}} />;
+                default:
+                    return null;
+            }
+        });
     };
 
     return (
         <>
-        <Welcome />
-        {/* Row Name */}
-        <TextField id="row-name-text" label="Row Name" variant="outlined" />
+            <Welcome/>
+            {rows.map((row, index) => (
+                <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
+                    {/* Row Name */}
+                    <TextField
+                        value={row.name}
+                        onChange={(e) => {
+                            const newName = e.target.value;
+                            setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
+                        }}
+                        label="Row Name"
+                        variant="outlined"
+                    />
 
-        <p></p>
-        {/* Dropdown Type Selector */}
-        <FormControl sx={{minWidth: 150}}>
-            <InputLabel id="select-type-label">Type</InputLabel>
-            <Select
-            labelId="select-type-label"
-            id="select-input-type"
-            value={type}
-            onChange={handleChange}
-            autoWidth
-            label="type"
-            >
-            <MenuItem value={1}>Type 1</MenuItem>
-            <MenuItem value={2}>Type 2</MenuItem>
-            <MenuItem value={3}>Type 3</MenuItem>
-            </Select>
-        </FormControl>
+                    {/* Dropdown Type Selector */}
+                    <FormControl sx={{minWidth: 150}}>
+                        <InputLabel id={`select-type-label-${index}`}>Type</InputLabel>
+                        <Select
+                            labelId={`select-type-label-${index}`}
+                            value={row.type}
+                            onChange={(e) => {
+                                const newType = e.target.value;
+                                setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, type: newType } : r));
+                            }}
+                            autoWidth
+                            label="type"
+                        >
+                            {basicInputTypes.map((type, idx) => (
+                                <MenuItem key={idx} value={type.name}>{type.name}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    
+                    {/* Percentage of Blanks Input */}
+                    <TextField
+                        value={row.blanks}
+                        onChange={(e) => {
+                            const newBlanks = e.target.value;
+                            setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
+                        }}
+                        label="Percentage of Blanks"
+                        InputProps={{ type: 'number', endAdornment: '%' }}
+                    />
 
-        <p></p>
-        {/* Number Input */}
-        <TextField id="min-num-text" label="Min Number" inputProps={{ type: 'number'}} />
-        <TextField id="max-num-text" label="Max Number" inputProps={{ type: 'number'}} />
-        <TextField id="num-decimals-text" label="Number of Decimals" inputProps={{ type: 'number'}} />
+                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
 
-
-        <p></p>
-        {/* String (Not processed for list yet) Input */}
-        <TextField id="string-input-text" label="List Input" variant="outlined" />
-
-        <p></p>
-        {/* Date Picker */}
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker label="Start Date"/>
-            <DatePicker label="End Date"/>
-        </LocalizationProvider>
-
-        <p></p>
-        {/* Time Picker */}
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <TimePicker label="Start Time" />
-            <TimePicker label="End Time" />
-        </LocalizationProvider>
-        
-        <p></p>
-        {/* Percentage of Blanks Input */}
-        <TextField id="percent-blank-text" label="Percentage of Blanks" InputProps={{ type: 'number',
-            endAdornment: '%'}} />
+                    {index === rows.length - 1 && (
+                        <AddCircleIcon onClick={handleAddRow} style={{ marginLeft: 'auto', cursor: 'pointer' }} />
+                    )}
+                </div>
+            ))}
         </>
-    )
+    );
 }
