@@ -57,16 +57,16 @@ export default function App() {
         <>
             <Welcome/>
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
-                <div style={{ minWidth: 250, marginLeft: '10px', flex: 3 }}>Row Name</div>
-                <div style={{ minWidth: 200, flex: 2, marginLeft: '10px' }}>Input Type</div>
-                <div style={{ minWidth: 200, flex: 2, marginLeft: '10px' }}>Blanks</div>
-                <div style={{ flex: 4, marginLeft: '10px' }}>Other Options</div>
+                <div style={{ minWidth: 200, flex: 1, marginLeft: '10px' }}>Row Name</div>
+                <div style={{ minWidth: 200, flex: 1, marginLeft: '10px' }}>Input Type</div>
+                <div style={{ minWidth: 100, flex: 1, marginLeft: '10px' }}>Blanks</div>
+                <div style={{ minWidth: 200, flex: 1, marginLeft: '10px' }}>Other Options</div>
             </div>
             {rows.map((row, index) => (
                 <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                     {/* Row Name */}
                     <TextField
-                        sx={{minWidth: 250, flex: 2, marginLeft: '10px' }}
+                        sx={{minWidth: 200, flex: 1, marginLeft: '10px' }}
                         value={row.name}
                         onChange={(e) => {
                             const newName = e.target.value;
@@ -74,11 +74,11 @@ export default function App() {
                         }}
                         label=""
                         variant="outlined"
-                        style={{ flex: 3 }}
+                        style={{ flex: 1 }}
                     />
 
                     {/* Dropdown Type Selector */}
-                    <FormControl sx={{minWidth: 200, flex: 2, marginLeft: '10px' }}>
+                    <FormControl sx={{minWidth: 200, flex: 1, marginLeft: '10px' }}>
                         <InputLabel id={`select-type-label-${index}`}></InputLabel>
                         <Select
                             labelId={`select-type-label-${index}`}
@@ -98,7 +98,7 @@ export default function App() {
                     
                     {/* Percentage of Blanks Input */}
                     <TextField
-                        sx={{minWidth: 200, flex: 2, marginLeft: '10px' }}
+                        sx={{minWidth: 100, flex: 1, marginLeft: '10px' }}
                         value={row.blanks}
                         onChange={(e) => {
                             const newBlanks = e.target.value;
@@ -110,12 +110,12 @@ export default function App() {
                             endAdornment: '%',
                             inputProps: { min: 0, max: 100 }
                         }}
-                        style={{ flex: 1, marginLeft: '10px' }}
+                        style={{ flex: 1 }}
                         placeholder="0"
                     />
 
                     {/* Other Options */}
-                    <div style={{ flex: 4, marginLeft: '10px' }}>
+                    <div style={{ minWidth: 200, flex: 1, marginLeft: '10px' }}>
                         {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
                     </div>
                 </div>
