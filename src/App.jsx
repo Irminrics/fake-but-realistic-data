@@ -13,7 +13,7 @@ import Button from '@mui/material/Button';
 
 export default function App() {
     const [type, setType] = React.useState('');
-    const [rows, setRows] = React.useState([{ name: '', type: '', blanks: '' }]);
+    const [rows, setRows] = React.useState([{ name: '', type: 'Row Number', blanks: '' }]);
     const [format, setFormat] = React.useState('JSON');
 
     const handleChange = (event) => {
@@ -22,7 +22,8 @@ export default function App() {
     };
 
     const handleAddRow = () => {
-        setRows(prevRows => [...prevRows, { name: '', type: '', blanks: '' }]);
+        console.log('Adding a new row');
+        setRows(prevRows => [...prevRows, { name: '', type: 'Row Number', blanks: '' }]);
     };
 
     const handleFormatChange = (event) => {
@@ -41,7 +42,7 @@ export default function App() {
                 {selectedInputTypeInfo.options.map(option => {
                     switch (option) {
                         case 'address-line-text':
-                            return <TextField key={option} id="address-line-text" label="Address Line" variant="outlined" sx={{ minWidth: 400, marginRight: '10px' }} />;
+                            return <TextField key={option} id="address-line-text" label="Address Line" variant="outlined" sx={{ minWidth: 300,marginRight: '10px' }} />;
                         case 'min-num-text':
                             return <TextField key={option} id="min-num-text" label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
                         case 'max-num-text':
@@ -61,7 +62,7 @@ export default function App() {
                 <div style={{ minWidth: 300, marginLeft: '10px' }}>Row Name</div>
                 <div style={{ minWidth: 200, marginLeft: '10px' }}>Input Type</div>
                 <div style={{ minWidth: 100, width: 100, marginLeft: '10px' }}>Blanks</div>
-                <div style={{ minWidth: 300, marginLeft: '10px' }}>Other Options</div>
+                <div style={{ minWidth: 600, marginLeft: '10px' }}>Other Options</div>
             </div>
             {rows.map((row, index) => (
                 <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
@@ -114,7 +115,7 @@ export default function App() {
                     />
 
                     {/* Other Options */}
-                    <div style={{ minWidth: 300, marginLeft: '10px'}}>
+                    <div style={{ minWidth: 600, marginLeft: '10px'}}>
                         {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
                     </div>
                 </div>
