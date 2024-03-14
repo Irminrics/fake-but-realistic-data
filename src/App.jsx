@@ -11,6 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import AddCircleIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import DragIndicatorOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 
@@ -18,6 +19,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 export default function App() {
     const [type, setType] = React.useState('');
@@ -47,6 +50,14 @@ export default function App() {
 
     const handleCustomListChange = (event) => {
         setCustomListValue(event.target.value);
+    };
+
+    const handleDragEnd = (result) => {
+        if (!result.destination) return;
+        const items = Array.from(rows);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+        setRows(items);
     };
 
     // Define a function to render input fields based on options
@@ -142,7 +153,18 @@ export default function App() {
                 <div style={{ minWidth: 100, width: 100, marginLeft: '10px' }}>Blanks</div>
                 <div style={{ minWidth: 650, marginLeft: '10px' }}>Other Options</div>
             </div>
-            {rows.map((row, index) => (
+            <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="rows">
+                    {(provided) => (
+                        <div {...provided.droppableProps} ref={provided.innerRef}>
+                            {rows.map((row, index) => (
+                                <Draggable key={index} draggableId={index.toString()} index={index}>
+                                    {(provided) => (
+                                        <div
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                            ref={provided.innerRef}
+                                        >
                 <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                     {/* Field Name */}
                     <TextField
@@ -211,9 +233,15 @@ export default function App() {
                         <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
                     )}
                 </div>
-
-                
-            ))}
+                                        </div>
+                                    )}
+                                </Draggable>
+                            ))}
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
+            </DragDropContext>
 
             {/* Add New Row Button */}
             <Button onClick={handleAddRow} variant="contained" color="primary" style={{ marginRight: '10px' }}>
