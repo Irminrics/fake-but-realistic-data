@@ -5,11 +5,6 @@ export const basicInputTypes = [
         options: []
     },
     {
-        name: 'Binomial Distribution',
-        description: 'Generates numbers based on a binomial distribution with a specific probability of success',
-        options: ['success-probability-text']
-    },
-    {
         name: 'Blank',
         description: 'Always generates a null value',
         options: []
@@ -40,24 +35,9 @@ export const basicInputTypes = [
         options: ['date-time-picker']
     },
     {
-        name: 'Encrypt',
-        description: 'Simulates encrypted text',
-        options: []
-    },
-    {
-        name: 'Exponential Distribution',
-        description: 'Generates numbers based on a exponential distribution with a specific λ rate',
-        options: ['exponential-lambda-text']
-    },
-    {
         name: 'Frequency',
         description: 'Never, Once, Seldom, Often, Daily, Weekly, Monthly, Yearly',
         options: []
-    },
-    {
-        name: 'Geometric Distribution',
-        description: 'Generates numbers based on a geometric distribution with a specific probability of success',
-        options: ['success-probability-text']
     },
     {
         name: 'GUID',
@@ -85,11 +65,6 @@ export const basicInputTypes = [
         options: []
     },
     {
-        name: 'Normal Distribution',
-        description: 'Generates random numbers in a normal distribution using the Box-Muller algorithm',
-        options: ['mean-text', 'stddev-text', 'decimals-text']
-    },
-    {
         name: 'Number',
         description: '0.25, 5.2, 1000',
         options: ['min-num-text', 'max-num-text', 'decimals-text']
@@ -108,11 +83,6 @@ export const basicInputTypes = [
         name: 'Password Hash',
         description: 'The bcrypt hash of a randomly generated password',
         options: []
-    },
-    {
-        name: 'Poisson Distribution',
-        description: 'Generates numbers based on a Poisson distribution with a specific mean value',
-        options: ['mean-text']
     },
     {
         name: 'Row Number',
