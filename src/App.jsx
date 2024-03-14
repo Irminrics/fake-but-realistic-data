@@ -59,26 +59,41 @@ export default function App() {
         setRows(items);
     };
 
-    // Function to convert rows to CSV
     const convertRowsToCSV = () => {
         let csvContent = "data:text/csv;charset=utf-8,";
-
-        // Extract field names and types
+    
+        // Extract field names, types, and blanks percentages
         const headers = rows.map(row => row.name);
         const types = rows.map(row => row.type);
-
+        const blanksPercentages = rows.map(row => row.blanks);
+    
         // Append headers
         csvContent += headers.join(',') + '\r\n';
-
+    
         // Repeat types based on numberOfRowsInOutput
         for (let i = 0; i < numberOfRowsInOutput; i++) {
-            csvContent += types.join(',') + '\r\n';
+            // Combine types with blanks percentages for each row
+            const rowData = types.map((type, index) => {
+                if (type === 'Row Number') {
+                    // If type is row number, print the row number
+                    return i + 1;
+                } else if (type === 'Blank') {
+                    return ``;
+                    // Otherwise, append the type with blanks percentage
+                } else {
+                    // Otherwise, append the type with blanks percentage
+                    return type + ` (${blanksPercentages[index]}%)`;
+                }
+            });
+            csvContent += rowData.join(',') + '\r\n';
         }
-
+    
         // Encode CSV content
         const encodedUri = encodeURI(csvContent);
         return encodedUri;
     };
+    
+
 
 
 
