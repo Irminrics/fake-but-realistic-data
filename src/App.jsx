@@ -23,15 +23,21 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 export default function App() {
-    const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '' }]);
+    const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('JSON');
     const [customListValue, setCustomListValue] = React.useState('random');
 
     const handleAddRow = () => {
         console.log('Adding a new row');
-        setRows(prevRows => [...prevRows, { name: 'row_number_0', type: 'Row Number', blanks: '' }]);
+        const newRow = {
+            name: `row_number_${rows.length}`,
+            type: 'Row Number',
+            blanks: '50'
+        };
+        setRows(prevRows => [...prevRows, newRow]);
     };
+    
     
     const handleDeleteRow = (indexToDelete) => {
         setRows(prevRows => prevRows.filter((row, index) => index !== indexToDelete));
@@ -161,6 +167,7 @@ export default function App() {
                 <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                     {/* Field Name */}
                     <TextField
+                        id={`field-name-${index}`}
                         sx={{ minWidth: 300, marginLeft: '10px' }}
                         value={row.name}
                         onChange={(e) => {
