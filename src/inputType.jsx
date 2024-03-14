@@ -27,7 +27,7 @@ export const basicInputTypes = [
     {
         name: 'Custom List',
         description: 'Picks items randomly or sequentially from a custom list of values',
-        options: ['custom-list-dropdown']
+        options: ['custom-list-text', 'custom-list-dropdown']
     },
     {
         name: 'Dataset Column',

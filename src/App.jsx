@@ -134,6 +134,8 @@ export default function App() {
                             return <TextField key={option} id={option} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
                         case 'success-probability-text':
                             return <TextField key={option} id={option} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />;
+                        case 'custom-list-text':
+                            return <TextField key={option} id={option} label="Custom List" placeholder="Item1, Item2, Item3" sx={{ minWidth: 350, marginRight: '10px' }} />;
                         case 'custom-list-dropdown':
                             return (
                                 <FormControl key={option} sx={{ minWidth: 120 }}>
