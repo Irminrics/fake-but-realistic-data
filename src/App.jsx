@@ -211,17 +211,18 @@ export default function App() {
                 <Button variant="contained" color="primary" style={{ marginRight: '10px' }}>
                     Generate Data
                 </Button>
+
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <InputLabel style={{ marginRight: '10px' }}>Format:</InputLabel>
-                    <Select
-                        value={format}
-                        onChange={handleFormatChange}
-                        label="Format"
-                    >
-                        <MenuItem value="JSON">JSON</MenuItem>
-                        <MenuItem value="SQL">SQL</MenuItem>
-                    </Select>
-                </div>
+                <Select
+                    value={format}
+                    onChange={handleFormatChange}
+                    variant="standard" // Use standard variant to remove the space
+                    MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} // Adjust the space between the dropdown and the button
+                >
+                    <MenuItem value="JSON">JSON</MenuItem>
+                    <MenuItem value="SQL">SQL</MenuItem>
+                </Select>
+            </div>
             </div>
         </>
     );
