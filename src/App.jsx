@@ -22,11 +22,14 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
+import { generateRandomAddress, generateRandomColorName } from './generator';
+
 export default function App() {
     const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
-    const [format, setFormat] = React.useState('JSON');
+    const [format, setFormat] = React.useState('CSV');
     const [customListValue, setCustomListValue] = React.useState('random');
+
 
     const handleAddRow = () => {
         console.log('Adding a new row');
@@ -37,8 +40,8 @@ export default function App() {
         };
         setRows(prevRows => [...prevRows, newRow]);
     };
-    
-    
+
+
     const handleDeleteRow = (indexToDelete) => {
         setRows(prevRows => prevRows.filter((row, index) => index !== indexToDelete));
     };
@@ -57,6 +60,61 @@ export default function App() {
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
         setRows(items);
+    };
+    // CSV Functions
+    const convertRowsToCSV = () => {
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // Extract field names, types, and blanks percentages
+        const headers = rows.map(row => row.name);
+        const types = rows.map(row => row.type);
+        const blanksPercentages = rows.map(row => row.blanks);
+
+        // Append headers
+        csvContent += headers.join(',') + '\r\n';
+
+        // Repeat types based on numberOfRowsInOutput
+        for (let i = 0; i < numberOfRowsInOutput; i++) {
+            const rowData = types.map((type, index) => {
+                if (type === 'Row Number') {
+                    // If type is row number, print the row number
+                    return i + 1;
+                } else if (type === 'Address Line') {
+                    // If type is Address Line, generate a random address
+                    return generateRandomAddress();
+                } else if (type === 'Boolean') {
+                    // If type is Boolean, generate a random boolean value (true or false)
+                    return Math.random() < 0.5 ? 'true' : 'false';
+                } else if (type === 'Colour') {
+                    // If type is Address Line, generate a random color
+                    return generateRandomColorName();
+                } else if (type === 'Blank') {
+                    return ``;
+                } else {
+                    // Handle other types as needed
+                    return ``;
+                }
+            });
+            csvContent += rowData.join(',') + '\r\n';
+        }
+
+        // Encode CSV content
+        const encodedUri = encodeURI(csvContent);
+        return encodedUri;
+    };
+
+
+
+
+
+    // Function to handle CSV download
+    const handleDownloadCSV = () => {
+        const csvContent = convertRowsToCSV();
+        const link = document.createElement("a");
+        link.setAttribute("href", csvContent);
+        link.setAttribute("download", "data.csv");
+        document.body.appendChild(link);
+        link.click();
     };
 
     // Define a function to render input fields based on options
@@ -96,12 +154,12 @@ export default function App() {
                         case 'date-time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker id={`${option}-start`} label="Start Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
-                                <DatePicker id={`${option}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px' }}/>
+                                <DatePicker id={`${option}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
                             </LocalizationProvider>;
                         case 'time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <TimePicker id={`${option}-start`} label="Start Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
-                                <TimePicker id={`${option}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px' }}/>
+                                <TimePicker id={`${option}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
                             </LocalizationProvider>;
                         case 'exponential-lambda-text':
                             return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
@@ -127,13 +185,13 @@ export default function App() {
                             return <TextField key={option} id={option} label="At Most" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'password-options':
                             return (
-                            <>
-                            <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
-                            </>
+                                <>
+                                    <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
+                                    <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
+                                    <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
+                                    <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px' }} />
+                                    <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
+                                </>
                             );
                         default:
                             return null;
@@ -164,74 +222,74 @@ export default function App() {
                                             {...provided.dragHandleProps}
                                             ref={provided.innerRef}
                                         >
-                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                    {/* Field Name */}
-                    <TextField
-                        id={`field-name-${index}`}
-                        sx={{ minWidth: 300, marginLeft: '10px' }}
-                        value={row.name}
-                        onChange={(e) => {
-                            const newName = e.target.value;
-                            setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
-                        }}
-                        variant="outlined"
-                    />
+                                            <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                                {/* Field Name */}
+                                                <TextField
+                                                    id={`field-name-${index}`}
+                                                    sx={{ minWidth: 300, marginLeft: '10px' }}
+                                                    value={row.name}
+                                                    onChange={(e) => {
+                                                        const newName = e.target.value;
+                                                        setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
+                                                    }}
+                                                    variant="outlined"
+                                                />
 
-                    {/* Dropdown Type Selector */}
-                    <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
-                        <InputLabel id={`select-type-label-${index}`}></InputLabel>
-                        <Select
-                            labelId={`select-type-label-${index}`}
-                            value={row.type}
-                            onChange={(e) => {
-                                const newType = e.target.value;
-                                const newName = newType.toLowerCase().replace(/\s/g, '_') + "_" + index;
-                                setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, type: newType, name: newName } : r)); 
-                            }}
-                            autoWidth
-                            label=""
-                        >
-                            {basicInputTypes.map((type, idx) => (
-                                <MenuItem key={idx} value={type.name}>{type.name}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    {/* Percentage of Blanks Input */}
-                    <TextField
-                        sx={{ minWidth: 100, width: 100, marginLeft: '10px' }}
-                        value={row.blanks}
-                        onChange={(e) => {
-                            let newBlanks = e.target.value;
-                            // Remove leading zeros if the input is not "0"
-                            if (newBlanks !== '0') {
-                                newBlanks = newBlanks.replace(/^0+/, '');
-                            }
-                            // Convert negative numbers to "0"
-                            if (newBlanks === '' || newBlanks === '-' || /^\d+$/.test(newBlanks)) {
-                                if (/^\d*$/.test(newBlanks) && newBlanks >= 0 && newBlanks <= 100) {
-                                    setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
-                                }
-                            }
-                        }}
-                        label=""
-                        InputProps={{
-                            type: 'text', // Used text here to allow manipulation before converting to number
-                            endAdornment: '%',
-                        }}
-                        placeholder="0"
-                    />
+                                                {/* Dropdown Type Selector */}
+                                                <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
+                                                    <InputLabel id={`select-type-label-${index}`}></InputLabel>
+                                                    <Select
+                                                        labelId={`select-type-label-${index}`}
+                                                        value={row.type}
+                                                        onChange={(e) => {
+                                                            const newType = e.target.value;
+                                                            const newName = newType.toLowerCase().replace(/\s/g, '_') + "_" + index;
+                                                            setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, type: newType, name: newName } : r));
+                                                        }}
+                                                        autoWidth
+                                                        label=""
+                                                    >
+                                                        {basicInputTypes.map((type, idx) => (
+                                                            <MenuItem key={idx} value={type.name}>{type.name}</MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </FormControl>
+                                                {/* Percentage of Blanks Input */}
+                                                <TextField
+                                                    sx={{ minWidth: 100, width: 100, marginLeft: '10px' }}
+                                                    value={row.blanks}
+                                                    onChange={(e) => {
+                                                        let newBlanks = e.target.value;
+                                                        // Remove leading zeros if the input is not "0"
+                                                        if (newBlanks !== '0') {
+                                                            newBlanks = newBlanks.replace(/^0+/, '');
+                                                        }
+                                                        // Convert negative numbers to "0"
+                                                        if (newBlanks === '' || newBlanks === '-' || /^\d+$/.test(newBlanks)) {
+                                                            if (/^\d*$/.test(newBlanks) && newBlanks >= 0 && newBlanks <= 100) {
+                                                                setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
+                                                            }
+                                                        }
+                                                    }}
+                                                    label=""
+                                                    InputProps={{
+                                                        type: 'text', // Used text here to allow manipulation before converting to number
+                                                        endAdornment: '%',
+                                                    }}
+                                                    placeholder="0"
+                                                />
 
 
-                    {/* Other Options */}
-                    <div style={{ minWidth: 650, marginLeft: '10px'}}>
-                        {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
-                    </div>
+                                                {/* Other Options */}
+                                                <div style={{ minWidth: 650, marginLeft: '10px' }}>
+                                                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
+                                                </div>
 
-                    {/* Delete Button */}
-                    {rows.length > 1 && (
-                        <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
-                    )}
-                </div>
+                                                {/* Delete Button */}
+                                                {rows.length > 1 && (
+                                                    <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
+                                                )}
+                                            </div>
                                         </div>
                                     )}
                                 </Draggable>
@@ -252,39 +310,40 @@ export default function App() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
-            {/* Number of Rows Input */}
-            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
-                Number of Rows: 
-                <TextField
-                    sx={{ minWidth: 200, marginLeft: '10px' }}
-                    onChange={(e) => {
-                        const newNumOfRows = e.target.value;
-                        setNumberOfRowsInOutput(newNumOfRows);
-                    }}
-                    label=""
-                    variant="outlined"
-                    value='1000'
-                />
-            </div>
+                {/* Number of Rows Input */}
+                <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                    Number of Rows:
+                    <TextField
+                        sx={{ minWidth: 200, marginLeft: '10px' }}
+                        onChange={(e) => {
+                            const newNumOfRows = e.target.value;
+                            setNumberOfRowsInOutput(newNumOfRows);
+                        }}
+                        label=""
+                        variant="outlined"
+                        value={numberOfRowsInOutput}
+                    />
+                </div>
 
-            {/* Generate Data Button with Format Dropdown Picker */}
-            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
-                Format: 
-                <Select 
-                    value={format}
-                    onChange={handleFormatChange}
-                    variant="outlined" 
-                    MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} 
-                    style={{ marginLeft: '10px', marginRight: '10px' }}
-                >
-                    <MenuItem value="JSON">JSON</MenuItem>
-                    <MenuItem value="SQL">SQL</MenuItem>
-                </Select>
-                <Button variant="contained" color="primary">
-                    Generate
-                </Button>
+                {/* Generate Data Button with Format Dropdown Picker */}
+                <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                    Format:
+                    <Select
+                        value={format}
+                        onChange={handleFormatChange}
+                        variant="outlined"
+                        MenuProps={{ PaperProps: { style: { marginTop: 0 } } }}
+                        style={{ marginLeft: '10px', marginRight: '10px' }}
+                    >
+                        <MenuItem value="CSV">CSV</MenuItem>
+                        <MenuItem value="SQL">SQL</MenuItem>
+                        <MenuItem value="JSON">JSON</MenuItem>
+                    </Select>
+                    <Button onClick={handleDownloadCSV} variant="contained" color="primary">
+                        Generate
+                    </Button>
+                </div>
             </div>
-        </div>
         </>
     );
 }
