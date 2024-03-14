@@ -5,7 +5,7 @@ export const customListTypes = [
         option: ''
     },
     {
-        name: 'wighted',
+        name: 'weighted',
         description: 'Creates a statically weighted distribution that allows some values to be generated more frequently than others',
         option: 'choose-weight'
     },
