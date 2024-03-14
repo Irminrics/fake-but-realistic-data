@@ -8,7 +8,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddCircleIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
@@ -22,6 +22,7 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 export default function App() {
     const [type, setType] = React.useState('');
     const [rows, setRows] = React.useState([{ name: '', type: 'Row Number', blanks: '' }]);
+    const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('JSON');
     const [customListValue, setCustomListValue] = React.useState('random');
 
@@ -135,14 +136,14 @@ export default function App() {
         <>
             <Header />
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
-                <div style={{ minWidth: 300, marginLeft: '10px' }}>Row Name</div>
-                <div style={{ minWidth: 220, marginLeft: '10px' }}>Input Type</div>
+                <div style={{ minWidth: 300, marginLeft: '10px' }}>Field Name</div>
+                <div style={{ minWidth: 220, marginLeft: '10px' }}>Type</div>
                 <div style={{ minWidth: 100, width: 100, marginLeft: '10px' }}>Blanks</div>
                 <div style={{ minWidth: 650, marginLeft: '10px' }}>Other Options</div>
             </div>
             {rows.map((row, index) => (
                 <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                    {/* Row Name */}
+                    {/* Field Name */}
                     <TextField
                         sx={{ minWidth: 300, marginLeft: '10px' }}
                         value={row.name}
@@ -214,13 +215,28 @@ export default function App() {
             ))}
 
             {/* Add New Row Button */}
-            <AddCircleIcon onClick={handleAddRow} style={{ marginLeft: 'auto', cursor: 'pointer' }} />
-
+            <Button onClick={handleAddRow} variant="contained" color="primary" style={{ marginRight: '10px' }}>
+                ADD
+                <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
+            </Button>
 
             <Divider style={{ margin: '20px 0' }} />
 
-            {/* Generate Data Button with Format Dropdown Picker */}
             <div style={{ display: 'flex', alignItems: 'center' }}>
+            {/* Number of Rows Input */}
+                 <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>Number of Rows: </div>
+                <TextField
+                    sx={{ minWidth: 200, marginRight: '10px' }}
+                    onChange={(e) => {
+                        const newNumOfRows = e.target.value;
+                        setNumberOfRowsInOutput(newNumOfRows);
+                    }}
+                    label=""
+                    variant="outlined"
+                    value='1000'
+                />
+
+            {/* Generate Data Button with Format Dropdown Picker */}
                 <Button variant="contained" color="primary" style={{ marginRight: '10px' }}>
                     Generate Data
                 </Button>
