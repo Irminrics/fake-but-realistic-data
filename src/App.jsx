@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Header from './components/Header';
 import { basicInputTypes } from './inputType';
+import { customListTypes } from './customListType';
 
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
@@ -11,10 +12,17 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+
+
 export default function App() {
     const [type, setType] = React.useState('');
     const [rows, setRows] = React.useState([{ name: '', type: 'Row Number', blanks: '' }]);
     const [format, setFormat] = React.useState('JSON');
+    const [customListValue, setCustomListValue] = React.useState('random');
 
     const handleChange = (event) => {
         const chosenValue = event.target.value;
@@ -30,6 +38,10 @@ export default function App() {
         setFormat(event.target.value);
     };
 
+    const handleCustomListChange = (event) => {
+        setCustomListValue(event.target.value);
+    };
+
     // Define a function to render input fields based on options
     const renderInputFields = (selectedInputTypeInfo) => {
         if (!selectedInputTypeInfo || !selectedInputTypeInfo.options || selectedInputTypeInfo.options.length === 0) {
@@ -41,12 +53,71 @@ export default function App() {
             <div style={{ minWidth: 600, display: 'flex' }}>
                 {selectedInputTypeInfo.options.map(option => {
                     switch (option) {
-                        case 'address-line-text':
-                            return <TextField key={option} id="address-line-text" label="Address Line" variant="outlined" sx={{ minWidth: 300,marginRight: '10px' }} />;
                         case 'min-num-text':
-                            return <TextField key={option} id="min-num-text" label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
                         case 'max-num-text':
-                            return <TextField key={option} id="max-num-text" label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                        case 'success-probability-text':
+                            return <TextField key={option} id={option} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />;
+                        case 'custom-list-dropdown':
+                            return (
+                                <FormControl key={option} sx={{ minWidth: 120 }}>
+                                    <InputLabel id={option}></InputLabel>
+                                    <Select
+                                        labelId={option}
+                                        value={customListValue}
+                                        onChange={handleCustomListChange}
+                                        autoWidth
+                                        label=""
+                                    >
+                                        {customListTypes.map((type, idx) => (
+                                            <MenuItem key={idx} value={type.name}>{type.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            );
+                        case 'date-time-picker':
+                            return <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker id={`${option}-start`} label="Start Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
+                                <DatePicker id={`${option}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px' }}/>
+                            </LocalizationProvider>;
+                        case 'time-picker':
+                            return <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <TimePicker id={`${option}-start`} label="Start Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
+                                <TimePicker id={`${option}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px' }}/>
+                            </LocalizationProvider>;
+                        case 'exponential-lambda-text':
+                            return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'decimals-text':
+                            return <TextField key={option} id={option} label="Decimals" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'mean-text':
+                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'stddev-text':
+                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'time-text':
+                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'start-at-text':
+                            return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'step-text':
+                            return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'repeat-text':
+                            return <TextField key={option} id={option} label="Repeat" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'restart-at-text':
+                            return <TextField key={option} id={option} label="Restart At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'at-least-text':
+                            return <TextField key={option} id={option} label="At Least" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'at-most-text':
+                            return <TextField key={option} id={option} label="At Most" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                        case 'password-options':
+                            return (
+                            <>
+                            <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />
+                            </>
+                            );
                         default:
                             return null;
                     }
@@ -60,7 +131,7 @@ export default function App() {
             <Header />
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
                 <div style={{ minWidth: 300, marginLeft: '10px' }}>Row Name</div>
-                <div style={{ minWidth: 200, marginLeft: '10px' }}>Input Type</div>
+                <div style={{ minWidth: 220, marginLeft: '10px' }}>Input Type</div>
                 <div style={{ minWidth: 100, width: 100, marginLeft: '10px' }}>Blanks</div>
                 <div style={{ minWidth: 600, marginLeft: '10px' }}>Other Options</div>
             </div>
@@ -79,7 +150,7 @@ export default function App() {
                     />
 
                     {/* Dropdown Type Selector */}
-                    <FormControl sx={{ minWidth: 200, marginLeft: '10px' }}>
+                    <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
                         <InputLabel id={`select-type-label-${index}`}></InputLabel>
                         <Select
                             labelId={`select-type-label-${index}`}

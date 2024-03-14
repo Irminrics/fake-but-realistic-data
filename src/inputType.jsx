@@ -2,7 +2,7 @@ export const basicInputTypes = [
     {
         name: 'Address Line',
         description: 'Room, Apt, Floor, Suite or PO box number',
-        options: ['address-line-text']
+        options: []
     },
     {
         name: 'Binomial Distribution',
@@ -27,7 +27,7 @@ export const basicInputTypes = [
     {
         name: 'Custom List',
         description: 'Picks items randomly or sequentially from a custom list of values',
-        options: []
+        options: ['custom-list-dropdown']
     },
     {
         name: 'Dataset Column',
@@ -37,7 +37,7 @@ export const basicInputTypes = [
     {
         name: 'Datetime',
         description: '13/03/2024 3.13.2024 13-Mar-2024',
-        options: []
+        options: ['date-time-picker']
     },
     {
         name: 'Encrypt',
@@ -47,7 +47,7 @@ export const basicInputTypes = [
     {
         name: 'Exponential Distribution',
         description: 'Generates numbers based on a exponential distribution with a specific λ rate',
-        options: []
+        options: ['exponential-lambda-text']
     },
     {
         name: 'Frequency',
@@ -57,7 +57,7 @@ export const basicInputTypes = [
     {
         name: 'Geometric Distribution',
         description: 'Generates numbers based on a geometric distribution with a specific probability of success',
-        options: []
+        options: ['success-probability-text']
     },
     {
         name: 'GUID',
@@ -87,22 +87,22 @@ export const basicInputTypes = [
     {
         name: 'Normal Distribution',
         description: 'Generates random numbers in a normal distribution using the Box-Muller algorithm',
-        options: []
+        options: ['mean-text', 'stddev-text', 'decimals-text']
     },
     {
         name: 'Number',
         description: '0.25, 5.2, 1000',
-        options: ['min-num-text', 'max-num-text']
+        options: ['min-num-text', 'max-num-text', 'decimals-text']
     },
     {
         name: 'Paragraphs',
         description: 'Choose randmly from lorem ipsum',
-        options: []
+        options: ['at-least-text', 'at-most-text']
     },
     {
         name: 'Password',
         description: 'Generate passwords with customisable requirements',
-        options: []
+        options: ['password-options']
     },
     {
         name: 'Password Hash',
@@ -112,7 +112,7 @@ export const basicInputTypes = [
     {
         name: 'Poisson Distribution',
         description: 'Generates numbers based on a Poisson distribution with a specific mean value',
-        options: []
+        options: ['mean-text']
     },
     {
         name: 'Row Number',
@@ -122,12 +122,12 @@ export const basicInputTypes = [
     {
         name: 'Sentences',
         description: 'Choose randomly from lorem ipsum',
-        options: []
+        options: ['at-least-text', 'at-most-text']
     },
     {
         name: 'Sequence',
         description: 'Generates a sequence of numbers with adjustable step and repeat options',
-        options: []
+        options: ['start-at-text', 'step-text', 'repeat-text', 'restart-at-text']
     },
     {
         name: 'Short Hex Colour',
@@ -137,7 +137,7 @@ export const basicInputTypes = [
     {
         name: 'Time',
         description: '3:30 PM, 15:30',
-        options: []
+        options: ['time-picker']
     },
     {
         name: 'ULID',
@@ -147,6 +147,6 @@ export const basicInputTypes = [
     {
         name: 'Words',
         description: 'Chosen randomly from lorem ipsum',
-        options: []
+        options: ['at-least-text', 'at-most-text']
     },
 ];
