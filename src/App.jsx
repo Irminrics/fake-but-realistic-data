@@ -23,21 +23,14 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 export default function App() {
-    const [type, setType] = React.useState('');
-    const [rows, setRows] = React.useState([{ name: '', type: 'Row Number', blanks: '' }]);
-    const [rowName, setRowName] = React.useState('')
+    const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('JSON');
     const [customListValue, setCustomListValue] = React.useState('random');
 
-    const handleChange = (event) => {
-        const chosenValue = event.target.value;
-        setType(chosenValue);
-    };
-
     const handleAddRow = () => {
         console.log('Adding a new row');
-        setRows(prevRows => [...prevRows, { name: '', type: 'Row Number', blanks: '' }]);
+        setRows(prevRows => [...prevRows, { name: 'row_number_0', type: 'Row Number', blanks: '' }]);
     };
     
     const handleDeleteRow = (indexToDelete) => {
@@ -174,7 +167,6 @@ export default function App() {
                             const newName = e.target.value;
                             setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
                         }}
-                        label={rowName}
                         variant="outlined"
                     />
 
