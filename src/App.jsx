@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import Header from './components/Header';
 import { basicInputTypes } from './inputType';
 import { customListTypes } from './customListType';
@@ -18,10 +19,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
-
 export default function App() {
     const [type, setType] = React.useState('');
     const [rows, setRows] = React.useState([{ name: '', type: 'Row Number', blanks: '' }]);
+    const [rowName, setRowName] = React.useState('')
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('JSON');
     const [customListValue, setCustomListValue] = React.useState('random');
@@ -151,7 +152,7 @@ export default function App() {
                             const newName = e.target.value;
                             setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
                         }}
-                        label=""
+                        label={rowName}
                         variant="outlined"
                     />
 
@@ -163,7 +164,8 @@ export default function App() {
                             value={row.type}
                             onChange={(e) => {
                                 const newType = e.target.value;
-                                setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, type: newType } : r));
+                                const newName = newType.toLowerCase().replace(/\s/g, '_') + "_" + index;
+                                setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, type: newType, name: newName } : r)); 
                             }}
                             autoWidth
                             label=""
@@ -173,7 +175,6 @@ export default function App() {
                             ))}
                         </Select>
                     </FormControl>
-
                     {/* Percentage of Blanks Input */}
                     <TextField
                         sx={{ minWidth: 100, width: 100, marginLeft: '10px' }}
@@ -222,11 +223,13 @@ export default function App() {
 
             <Divider style={{ margin: '20px 0' }} />
 
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
             {/* Number of Rows Input */}
-                 <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>Number of Rows: </div>
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                Number of Rows: 
                 <TextField
-                    sx={{ minWidth: 200, marginRight: '10px' }}
+                    sx={{ minWidth: 200, marginLeft: '10px' }}
                     onChange={(e) => {
                         const newNumOfRows = e.target.value;
                         setNumberOfRowsInOutput(newNumOfRows);
@@ -235,24 +238,26 @@ export default function App() {
                     variant="outlined"
                     value='1000'
                 />
+            </div>
 
             {/* Generate Data Button with Format Dropdown Picker */}
-                <Button variant="contained" color="primary" style={{ marginRight: '10px' }}>
-                    Generate Data
-                </Button>
-
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Select
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                Format: 
+                <Select 
                     value={format}
                     onChange={handleFormatChange}
-                    variant="standard" // Use standard variant to remove the space
-                    MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} // Adjust the space between the dropdown and the button
+                    variant="outlined" 
+                    MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} 
+                    style={{ marginLeft: '10px', marginRight: '10px' }}
                 >
                     <MenuItem value="JSON">JSON</MenuItem>
                     <MenuItem value="SQL">SQL</MenuItem>
                 </Select>
+                <Button variant="contained" color="primary">
+                    Generate
+                </Button>
             </div>
-            </div>
+        </div>
         </>
     );
 }
