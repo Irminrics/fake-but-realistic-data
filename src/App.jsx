@@ -9,6 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 
@@ -32,6 +33,10 @@ export default function App() {
     const handleAddRow = () => {
         console.log('Adding a new row');
         setRows(prevRows => [...prevRows, { name: '', type: 'Row Number', blanks: '' }]);
+    };
+    
+    const handleDeleteRow = (indexToDelete) => {
+        setRows(prevRows => prevRows.filter((row, index) => index !== indexToDelete));
     };
 
     const handleFormatChange = (event) => {
@@ -111,11 +116,11 @@ export default function App() {
                         case 'password-options':
                             return (
                             <>
-                            <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
                             </>
                             );
                         default:
@@ -133,7 +138,7 @@ export default function App() {
                 <div style={{ minWidth: 300, marginLeft: '10px' }}>Row Name</div>
                 <div style={{ minWidth: 220, marginLeft: '10px' }}>Input Type</div>
                 <div style={{ minWidth: 100, width: 100, marginLeft: '10px' }}>Blanks</div>
-                <div style={{ minWidth: 600, marginLeft: '10px' }}>Other Options</div>
+                <div style={{ minWidth: 650, marginLeft: '10px' }}>Other Options</div>
             </div>
             {rows.map((row, index) => (
                 <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
@@ -195,14 +200,22 @@ export default function App() {
 
 
                     {/* Other Options */}
-                    <div style={{ minWidth: 600, marginLeft: '10px'}}>
+                    <div style={{ minWidth: 650, marginLeft: '10px'}}>
                         {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
                     </div>
+
+                    {/* Delete Button */}
+                    {rows.length > 1 && (
+                        <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
+                    )}
                 </div>
+
+                
             ))}
 
             {/* Add New Row Button */}
             <AddCircleIcon onClick={handleAddRow} style={{ marginLeft: 'auto', cursor: 'pointer' }} />
+
 
             <Divider style={{ margin: '20px 0' }} />
 
