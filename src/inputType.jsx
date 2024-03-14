@@ -7,7 +7,7 @@ export const basicInputTypes = [
     {
         name: 'Binomial Distribution',
         description: 'Generates numbers based on a binomial distribution with a specific probability of success',
-        options: []
+        options: ['success-probability-text']
     },
     {
         name: 'Blank',
