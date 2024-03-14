@@ -22,11 +22,14 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
+import { generateRandomAddress, generateRandomColorName } from './generator';
+
 export default function App() {
     const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
     const [customListValue, setCustomListValue] = React.useState('random');
+
 
     const handleAddRow = () => {
         console.log('Adding a new row');
@@ -58,41 +61,48 @@ export default function App() {
         items.splice(result.destination.index, 0, reorderedItem);
         setRows(items);
     };
-
+    // CSV Functions
     const convertRowsToCSV = () => {
         let csvContent = "data:text/csv;charset=utf-8,";
-    
+
         // Extract field names, types, and blanks percentages
         const headers = rows.map(row => row.name);
         const types = rows.map(row => row.type);
         const blanksPercentages = rows.map(row => row.blanks);
-    
+
         // Append headers
         csvContent += headers.join(',') + '\r\n';
-    
+
         // Repeat types based on numberOfRowsInOutput
         for (let i = 0; i < numberOfRowsInOutput; i++) {
-            // Combine types with blanks percentages for each row
             const rowData = types.map((type, index) => {
                 if (type === 'Row Number') {
                     // If type is row number, print the row number
                     return i + 1;
+                } else if (type === 'Address Line') {
+                    // If type is Address Line, generate a random address
+                    return generateRandomAddress();
+                } else if (type === 'Boolean') {
+                    // If type is Boolean, generate a random boolean value (true or false)
+                    return Math.random() < 0.5 ? 'true' : 'false';
+                } else if (type === 'Colour') {
+                    // If type is Address Line, generate a random color
+                    return generateRandomColorName();
                 } else if (type === 'Blank') {
                     return ``;
-                    // Otherwise, append the type with blanks percentage
                 } else {
-                    // Otherwise, append the type with blanks percentage
-                    return type + ` (${blanksPercentages[index]}%)`;
+                    // Handle other types as needed
+                    return ``;
                 }
             });
             csvContent += rowData.join(',') + '\r\n';
         }
-    
+
         // Encode CSV content
         const encodedUri = encodeURI(csvContent);
         return encodedUri;
     };
-    
+
 
 
 
