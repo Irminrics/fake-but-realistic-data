@@ -173,17 +173,26 @@ export default function App() {
                         sx={{ minWidth: 100, width: 100, marginLeft: '10px' }}
                         value={row.blanks}
                         onChange={(e) => {
-                            const newBlanks = e.target.value;
-                            setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
+                            let newBlanks = e.target.value;
+                            // Remove leading zeros if the input is not "0"
+                            if (newBlanks !== '0') {
+                                newBlanks = newBlanks.replace(/^0+/, '');
+                            }
+                            // Convert negative numbers to "0"
+                            if (newBlanks === '' || newBlanks === '-' || /^\d+$/.test(newBlanks)) {
+                                if (/^\d*$/.test(newBlanks) && newBlanks >= 0 && newBlanks <= 100) {
+                                    setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
+                                }
+                            }
                         }}
                         label=""
                         InputProps={{
-                            type: 'number',
+                            type: 'text', // Used text here to allow manipulation before converting to number
                             endAdornment: '%',
-                            inputProps: { min: 0, max: 100 }
                         }}
                         placeholder="0"
                     />
+
 
                     {/* Other Options */}
                     <div style={{ minWidth: 600, marginLeft: '10px'}}>
