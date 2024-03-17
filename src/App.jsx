@@ -157,6 +157,8 @@ export default function App() {
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} defaultValue={0} />;
                         case 'max-num-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} defaultValue={100} />;
+                        case 'custom-list-text':
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Custom List" placeholder="Item1, Item2, Item3" sx={{ minWidth: 350, marginRight: '10px' }} />;
                         case 'success-probability-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />;
                         case 'custom-list-dropdown':
@@ -191,15 +193,15 @@ export default function App() {
                                 <TimePicker id={`${option}-${index}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
                             </LocalizationProvider>;
                         case 'exponential-lambda-text':
-                            return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'decimals-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Decimals" inputProps={{ type: 'number', min: 0 }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={0} />;
                         case 'mean-text':
-                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'stddev-text':
-                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'time-text':
-                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'start-at-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'step-text':
