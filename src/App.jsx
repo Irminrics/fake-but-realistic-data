@@ -25,11 +25,9 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { generateRandomAddress, generateRandomColorName } from './generator';
 
 export default function App() {
-    const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
+    const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '50', customListInputType: 'random' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
-    const [customListValue, setCustomListValue] = React.useState('random');
-
 
     const handleAddRow = () => {
         console.log('Adding a new row');
@@ -48,10 +46,6 @@ export default function App() {
 
     const handleFormatChange = (event) => {
         setFormat(event.target.value);
-    };
-
-    const handleCustomListChange = (event) => {
-        setCustomListValue(event.target.value);
     };
 
     const handleDragEnd = (result) => {
@@ -118,7 +112,7 @@ export default function App() {
     };
 
     // Define a function to render input fields based on options
-    const renderInputFields = (selectedInputTypeInfo) => {
+    const renderInputFields = (selectedInputTypeInfo, row, index) => {
         if (!selectedInputTypeInfo || !selectedInputTypeInfo.options || selectedInputTypeInfo.options.length === 0) {
             return null;
         }
@@ -129,19 +123,23 @@ export default function App() {
                 {selectedInputTypeInfo.options.map(option => {
                     switch (option) {
                         case 'min-num-text':
-                            return <TextField key={option} id={option} label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
                         case 'max-num-text':
-                            return <TextField key={option} id={option} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
                         case 'custom-list-text':
-                            return <TextField key={option} id={option} label="Custom List" placeholder="Item1, Item2, Item3" sx={{ minWidth: 350, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Custom List" placeholder="Item1, Item2, Item3" sx={{ minWidth: 350, marginRight: '10px' }} />;
                         case 'custom-list-dropdown':
                             return (
-                                <FormControl key={option} sx={{ minWidth: 120 }}>
-                                    <InputLabel id={option}></InputLabel>
+                                <FormControl key={`${option}-${index}`} sx={{ minWidth: 120 }}>
+                                    <InputLabel id={`${option}-${index}`}></InputLabel>
                                     <Select
-                                        labelId={option}
-                                        value={customListValue}
-                                        onChange={handleCustomListChange}
+                                        labelId={`${option}-${index}`}
+                                        value={row.customListInputType}
+                                        onChange={(e) => {
+                                            const newType = e.target.value;
+                                            console.log("changing custom list input type to", newType);
+                                            setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, customListInputType: newType } : r));
+                                        }}
                                         autoWidth
                                         label=""
                                     >
@@ -153,36 +151,36 @@ export default function App() {
                             );
                         case 'date-time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker id={`${option}-start`} label="Start Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
-                                <DatePicker id={`${option}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
+                                <DatePicker id={`${option}-${index}-start`} label="Start Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
+                                <DatePicker id={`${option}-${index}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
                             </LocalizationProvider>;
                         case 'time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <TimePicker id={`${option}-start`} label="Start Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
-                                <TimePicker id={`${option}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
+                                <TimePicker id={`${option}-${index}-start`} label="Start Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
+                                <TimePicker id={`${option}-${index}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
                             </LocalizationProvider>;
                         case 'decimals-text':
-                            return <TextField key={option} id={option} label="Decimals" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Decimals" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'start-at-text':
-                            return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'step-text':
-                            return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'repeat-text':
-                            return <TextField key={option} id={option} label="Repeat" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Repeat" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'restart-at-text':
-                            return <TextField key={option} id={option} label="Restart At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Restart At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'at-least-text':
-                            return <TextField key={option} id={option} label="At Least" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="At Least" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'at-most-text':
-                            return <TextField key={option} id={option} label="At Most" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="At Most" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'password-options':
                             return (
                                 <>
-                                    <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
-                                    <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
-                                    <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
-                                    <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px' }} />
-                                    <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
+                                    <TextField key={`${option}-${index}-min-length`} id={`${option}-${index}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
+                                    <TextField key={`${option}-${index}-upper`} id={`${option}-${index}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
+                                    <TextField key={`${option}-${index}-lower`} id={`${option}-${index}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
+                                    <TextField key={`${option}-${index}-number`} id={`${option}-${index}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px' }} />
+                                    <TextField key={`${option}-${index}-symbol`} id={`${option}-${index}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
                                 </>
                             );
                         default:
@@ -193,28 +191,27 @@ export default function App() {
         );
     };
 
-    // Renders the additional properties when type 'Custom List' is chosen
-    const renderCustomListFields = (selectedCustomListType) => {
+    const renderCustomListFields = (selectedCustomListType, index) => {
         if (!selectedCustomListType || !selectedCustomListType.options || selectedCustomListType.options.length === 0) {
             return null;
         }
-
+    
         // Render input fields based on options
         return (
             <div style={{ minWidth: 600, display: 'flex' }}>
                 {selectedCustomListType.options.map(option => {
                     switch (option) {
-                        case 'choose-weight':
-                            return <TextField key={option} id={option} label="Weight Distribution" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
-                        case 'custom-distribution':
-                            return <TextField key={option} id={option} label="Custom Distribution" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                        case 'weighted':
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Weight Distribution" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                        case 'dynamic':
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Custom Distribution" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
                         default:
                             break;
                     }
                 })}
-                </div>
-            );
-        };
+            </div>
+        );
+    };
     
 
     return (
@@ -298,7 +295,10 @@ export default function App() {
 
                                                 {/* Other Options */}
                                                 <div style={{ minWidth: 650, marginLeft: '10px' }}>
-                                                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
+                                                    {renderInputFields(basicInputTypes.find(inputType => inputType.name == row.type), row, index)}
+                                                    {row.type == 'Custom List' && 
+                                                        renderCustomListFields(customListTypes.find(customInputType => customInputType.name == row.customListInputType), row, index)
+                                                    }
                                                 </div>
 
                                                 {/* Delete Button */}
