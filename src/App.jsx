@@ -193,6 +193,30 @@ export default function App() {
         );
     };
 
+    // Renders the additional properties when type 'Custom List' is chosen
+    const renderCustomListFields = (selectedCustomListType) => {
+        if (!selectedCustomListType || !selectedCustomListType.options || selectedCustomListType.options.length === 0) {
+            return null;
+        }
+
+        // Render input fields based on options
+        return (
+            <div style={{ minWidth: 600, display: 'flex' }}>
+                {selectedCustomListType.options.map(option => {
+                    switch (option) {
+                        case 'choose-weight':
+                            return <TextField key={option} id={option} label="Weight Distribution" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                        case 'custom-distribution':
+                            return <TextField key={option} id={option} label="Custom Distribution" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                        default:
+                            break;
+                    }
+                })}
+                </div>
+            );
+        };
+    
+
     return (
         <>
             <Header />
