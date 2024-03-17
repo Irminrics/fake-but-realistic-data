@@ -15,22 +15,80 @@ import DragIndicatorOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
+
+
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { TypeSpecimen } from '@mui/icons-material';
+import IconButton from "@mui/material/IconButton";
+import AlarmIcon from '@mui/icons-material/Alarm';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+
 
 export default function App() {
-    const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
+    const [rows, setRows] = React.useState([{ id: 1, name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('JSON');
     const [customListValue, setCustomListValue] = React.useState('random');
 
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    const handleClick = (event) => {
+        console.log('handleClick triggered');
+        console.log('Event:', event);
+        setAnchorEl(event.currentTarget);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        console.log('handleClose triggered');
+        setAnchorEl(null);
+        setOpen(false);
+    };
+
+    const handleTypeSelect = (typeName, rowId) => {
+
+        const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + rowId;
+
+        setRows(prevRows =>
+            prevRows.map((r, idx)=>
+                idx === rowId ? { ...r, selectedType: typeName, name: newName  } : r
+            )
+        );
+        
+        handleClose();
+    };
+
+    const open = Boolean(anchorEl);
+
+    // Filter the basicInputTypes array based on the search query
+    const filteredTypes = basicInputTypes.filter(type =>
+        type.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Function to handle reset all
+    const handleResetAll = () => {
+        // Set rows to default
+        const defaultRows = [{
+            name: 'row_number_0',
+            type: 'Row Number',
+            blanks: '50'
+        }];
+        setRows(defaultRows);
+    };
+
     const handleAddRow = () => {
         console.log('Adding a new row');
         const newRow = {
+            id: rows.length + 1,
             name: `row_number_${rows.length}`,
             type: 'Row Number',
             blanks: '50'
@@ -71,14 +129,14 @@ export default function App() {
                 {selectedInputTypeInfo.options.map(option => {
                     switch (option) {
                         case 'min-num-text':
-                            return <TextField key={option} id={option} label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'max-num-text':
-                            return <TextField key={option} id={option} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'success-probability-text':
-                            return <TextField key={option} id={option} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'custom-list-dropdown':
                             return (
-                                <FormControl key={option} sx={{ minWidth: 120 }}>
+                                <FormControl key={option} sx={{ minWidth: 120, '& .MuiInputBase-root': {borderRadius: '15px' }}}>
                                     <InputLabel id={option}></InputLabel>
                                     <Select
                                         labelId={option}
@@ -95,44 +153,44 @@ export default function App() {
                             );
                         case 'date-time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker id={`${option}-start`} label="Start Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
-                                <DatePicker id={`${option}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px' }}/>
+                                <DatePicker id={`${option}-start`} label="Start Date" sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                                <DatePicker id={`${option}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}}/>
                             </LocalizationProvider>;
                         case 'time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <TimePicker id={`${option}-start`} label="Start Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
-                                <TimePicker id={`${option}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px' }}/>
+                                <TimePicker id={`${option}-start`} label="Start Time" sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                                <TimePicker id={`${option}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}}/>
                             </LocalizationProvider>;
                         case 'exponential-lambda-text':
-                            return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'decimals-text':
-                            return <TextField key={option} id={option} label="Decimals" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Decimals" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'mean-text':
-                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'stddev-text':
-                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'time-text':
-                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'start-at-text':
-                            return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'step-text':
-                            return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'repeat-text':
-                            return <TextField key={option} id={option} label="Repeat" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Repeat" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'restart-at-text':
-                            return <TextField key={option} id={option} label="Restart At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="Restart At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'at-least-text':
-                            return <TextField key={option} id={option} label="At Least" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="At Least" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'at-most-text':
-                            return <TextField key={option} id={option} label="At Most" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={option} id={option} label="At Most" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'password-options':
                             return (
                             <>
-                            <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px' }} />
-                            <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px' }} />
+                            <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                            <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                            <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                            <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                            <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
                             </>
                             );
                         default:
@@ -144,10 +202,19 @@ export default function App() {
     };
 
     return (
-        <>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', padding: '20px', flexGrow: 1, overflowX: 'hidden', width: '100vw' }}>
+            {/* Header */}
             <Header />
+
+            {/* Reset All button */}
+            <div style={{display: 'flex', minWidth: 200, alignItems: 'center', marginBottom: '20px', marginLeft: '700px', marginRight: '20px' }}>
+                <Button onClick={handleResetAll} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                    Reset All
+                </Button>
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
-                <div style={{ minWidth: 300, marginLeft: '10px' }}>Field Name</div>
+                <div style={{ minWidth: 300, marginLeft: '60px' }}>Field Name</div>
                 <div style={{ minWidth: 220, marginLeft: '10px' }}>Type</div>
                 <div style={{ minWidth: 100, width: 100, marginLeft: '10px' }}>Blanks</div>
                 <div style={{ minWidth: 650, marginLeft: '10px' }}>Other Options</div>
@@ -164,7 +231,17 @@ export default function App() {
                                             {...provided.dragHandleProps}
                                             ref={provided.innerRef}
                                         >
+                
+                
                 <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+    
+                    <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                        <IconButton color="secondary" aria-label="add an alarm">
+                            <DragIndicatorIcon style={{ color: '#1E90FF' }}/>
+                        </IconButton>
+                    </div>
+                  
+
                     {/* Field Name */}
                     <TextField
                         id={`field-name-${index}`}
@@ -175,27 +252,78 @@ export default function App() {
                             setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
                         }}
                         variant="outlined"
+                        InputProps={{
+                            style: { borderRadius: '15px' }
+                        }}
                     />
-
-                    {/* Dropdown Type Selector */}
+                    
+                    {/* Popup Selector */}
                     <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
-                        <InputLabel id={`select-type-label-${index}`}></InputLabel>
-                        <Select
-                            labelId={`select-type-label-${index}`}
-                            value={row.type}
-                            onChange={(e) => {
-                                const newType = e.target.value;
-                                const newName = newType.toLowerCase().replace(/\s/g, '_') + "_" + index;
-                                setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, type: newType, name: newName } : r)); 
-                            }}
-                            autoWidth
-                            label=""
+                        <Button 
+                        // aria-describedby={`type-popover-${row.id}`}
+                        onClick={(event) => handleClick(event, row.id)} 
+                        variant="outlined" 
+                        sx={{ borderRadius: '15px', border: '1px solid #bfbfbf', width: '220px',height: '55px', display: 'flex', textAlign: 'left', justifyContent: 'flex-start', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: ' hidden',
+                        color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
+                    
                         >
-                            {basicInputTypes.map((type, idx) => (
-                                <MenuItem key={idx} value={type.name}>{type.name}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                            {rows[index].selectedType || 'Select Type'}
+                             
+                        </Button>
+
+                    
+                        <Popover
+                            id={`type-popover-${row.id}`}
+                            open={open}
+                            anchorEl={anchorEl}
+                            onClose={handleClose}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'center',
+                            }}
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'center',
+                            }}
+                            style={{ minHeight: '700px', minWidth: '600px' }}
+                
+                        >
+                            <div style={{ minHeight: '700px', minWidth: '900px', overflow: 'auto' }}>
+                                <Typography sx={{paddingTop: '50px', paddingLeft: '50px', paddingRight: '50px', paddingButtom: '50px'}}>
+                                    <div>
+                                        <Typography variant="h5" gutterBottom sx={{display: 'flex', justifyContent: 'center'}} >Data Type</Typography> 
+                                        <Typography sx={{ paddingTop: '20px', display: 'flex', justifyContent: 'center' }}>
+                                            <TextField 
+                                                label="Search" 
+                                                variant="outlined" 
+                                                sx={{ width: '500px', marginBottom: '20px', '& .MuiInputBase-root': {borderRadius: '15px' }}}
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                
+                                            />
+                                        </Typography>
+                                    </div> 
+
+                                    <div key={row.id} style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                                        {filteredTypes.map((type, idx) => (
+                                            <Button 
+                                                key={idx}
+                                                onClick={() => handleTypeSelect(type.name, index )}
+                                                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+
+                                                <div>{type.name}</div>
+                                                <div style={{ fontSize: '0.6rem', color: 'gray' }}>{type.description}</div>
+                                                
+                                            </Button>
+                                        
+                                        ))}
+                                    </div>
+                                </Typography>  
+                            </div> 
+                        </Popover>
+                    </FormControl>   
+                
+
                     {/* Percentage of Blanks Input */}
                     <TextField
                         sx={{ minWidth: 100, width: 100, marginLeft: '10px' }}
@@ -217,14 +345,15 @@ export default function App() {
                         InputProps={{
                             type: 'text', // Used text here to allow manipulation before converting to number
                             endAdornment: '%',
+                            style: { borderRadius: '15px'}
                         }}
                         placeholder="0"
                     />
 
 
                     {/* Other Options */}
-                    <div style={{ minWidth: 650, marginLeft: '10px'}}>
-                        {renderInputFields(basicInputTypes.find(inputType => inputType.name === row.type))}
+                    <div style={{ minWidth: 20, marginLeft: '10px'}}>
+                        {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].selectedType))}
                     </div>
 
                     {/* Delete Button */}
@@ -243,20 +372,23 @@ export default function App() {
             </DragDropContext>
 
             {/* Add New Row Button */}
-            <Button onClick={handleAddRow} variant="contained" color="primary" style={{ marginRight: '10px' }}>
-                ADD
-                <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px' }}>
+                <Button onClick={handleAddRow} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
+                    <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
+                    ADD
+                </Button>
+            </div>
 
-            <Divider style={{ margin: '20px 0' }} />
+            
+            <div style={{ margin: '20px 20px', height: '1.5px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
 
             {/* Number of Rows Input */}
-            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
                 Number of Rows: 
                 <TextField
-                    sx={{ minWidth: 200, marginLeft: '10px' }}
+                    sx={{ minWidth: 200, marginLeft: '5px', '& .MuiInputBase-root': {borderRadius: '15px' }}}
                     onChange={(e) => {
                         const newNumOfRows = e.target.value;
                         setNumberOfRowsInOutput(newNumOfRows);
@@ -267,24 +399,29 @@ export default function App() {
                 />
             </div>
 
-            {/* Generate Data Button with Format Dropdown Picker */}
-            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+            {/* Format */}
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
                 Format: 
                 <Select 
                     value={format}
                     onChange={handleFormatChange}
                     variant="outlined" 
                     MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} 
-                    style={{ marginLeft: '10px', marginRight: '10px' }}
+                    style={{ marginLeft: '10px', marginRight: '10px', borderRadius: '15px' }}
                 >
                     <MenuItem value="JSON">JSON</MenuItem>
                     <MenuItem value="SQL">SQL</MenuItem>
                 </Select>
-                <Button variant="contained" color="primary">
+            </div>
+
+            {/* Generate Data Button with Format Dropdown Picker */}
+            <div style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                <Button variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                     Generate
                 </Button>
             </div>
-        </div>
-        </>
+        </div>    
+    </div>
     );
 }
+
