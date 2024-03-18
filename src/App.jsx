@@ -31,10 +31,12 @@ import AlarmIcon from '@mui/icons-material/Alarm';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 
+import { generateRandomAddress, generateRandomColorName } from './generator';
+
 export default function App() {
     const [rows, setRows] = React.useState([{ id: 1, name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
-    const [format, setFormat] = React.useState('JSON');
+    const [format, setFormat] = React.useState('CSV');
     const [customListValue, setCustomListValue] = React.useState('random');
 
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -88,15 +90,14 @@ export default function App() {
     const handleAddRow = () => {
         console.log('Adding a new row');
         const newRow = {
-            id: rows.length + 1,
             name: `row_number_${rows.length}`,
             type: 'Row Number',
             blanks: '50'
         };
         setRows(prevRows => [...prevRows, newRow]);
     };
-    
-    
+
+
     const handleDeleteRow = (indexToDelete) => {
         setRows(prevRows => prevRows.filter((row, index) => index !== indexToDelete));
     };
@@ -115,6 +116,61 @@ export default function App() {
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
         setRows(items);
+    };
+    // CSV Functions
+    const convertRowsToCSV = () => {
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // Extract field names, types, and blanks percentages
+        const headers = rows.map(row => row.name);
+        const types = rows.map(row => row.type);
+        const blanksPercentages = rows.map(row => row.blanks);
+
+        // Append headers
+        csvContent += headers.join(',') + '\r\n';
+
+        // Repeat types based on numberOfRowsInOutput
+        for (let i = 0; i < numberOfRowsInOutput; i++) {
+            const rowData = types.map((type, index) => {
+                if (type === 'Row Number') {
+                    // If type is row number, print the row number
+                    return i + 1;
+                } else if (type === 'Address Line') {
+                    // If type is Address Line, generate a random address
+                    return generateRandomAddress();
+                } else if (type === 'Boolean') {
+                    // If type is Boolean, generate a random boolean value (true or false)
+                    return Math.random() < 0.5 ? 'true' : 'false';
+                } else if (type === 'Colour') {
+                    // If type is Address Line, generate a random color
+                    return generateRandomColorName();
+                } else if (type === 'Blank') {
+                    return ``;
+                } else {
+                    // Handle other types as needed
+                    return ``;
+                }
+            });
+            csvContent += rowData.join(',') + '\r\n';
+        }
+
+        // Encode CSV content
+        const encodedUri = encodeURI(csvContent);
+        return encodedUri;
+    };
+
+
+
+
+
+    // Function to handle CSV download
+    const handleDownloadCSV = () => {
+        const csvContent = convertRowsToCSV();
+        const link = document.createElement("a");
+        link.setAttribute("href", csvContent);
+        link.setAttribute("download", "data.csv");
+        document.body.appendChild(link);
+        link.click();
     };
 
     // Define a function to render input fields based on options
@@ -185,13 +241,13 @@ export default function App() {
                             return <TextField key={option} id={option} label="At Most" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'password-options':
                             return (
-                            <>
-                            <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                            <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                            <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                            <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                            <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                            </>
+                                <>
+                                <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                                <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                                <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                                <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                                <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                                </>
                             );
                         default:
                             return null;
@@ -231,136 +287,135 @@ export default function App() {
                                             {...provided.dragHandleProps}
                                             ref={provided.innerRef}
                                         >
-                
-                
-                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-    
-                    <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <IconButton color="secondary" aria-label="add an alarm">
-                            <DragIndicatorIcon style={{ color: '#1E90FF' }}/>
-                        </IconButton>
-                    </div>
+                             
+                                            <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                
+                                                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                                    <IconButton color="secondary" aria-label="add an alarm">
+                                                        <DragIndicatorIcon style={{ color: '#1E90FF' }}/>
+                                                    </IconButton>
+                                                </div>
                   
 
-                    {/* Field Name */}
-                    <TextField
-                        id={`field-name-${index}`}
-                        sx={{ minWidth: 300, marginLeft: '10px' }}
-                        value={row.name}
-                        onChange={(e) => {
-                            const newName = e.target.value;
-                            setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
-                        }}
-                        variant="outlined"
-                        InputProps={{
-                            style: { borderRadius: '15px' }
-                        }}
-                    />
+                                                {/* Field Name */}
+                                                <TextField
+                                                    id={`field-name-${index}`}
+                                                    sx={{ minWidth: 300, marginLeft: '10px' }}
+                                                    value={row.name}
+                                                    onChange={(e) => {
+                                                        const newName = e.target.value;
+                                                        setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
+                                                    }}
+                                                    variant="outlined"
+                                                    InputProps={{
+                                                        style: { borderRadius: '15px' }
+                                                    }}
+                                                />
                     
-                    {/* Popup Selector */}
-                    <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
-                        <Button 
-                        // aria-describedby={`type-popover-${row.id}`}
-                        onClick={(event) => handleClick(event, row.id)} 
-                        variant="outlined" 
-                        sx={{ borderRadius: '15px', border: '1px solid #bfbfbf', width: '220px',height: '55px', display: 'flex', textAlign: 'left', justifyContent: 'flex-start', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: ' hidden',
-                        color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
-                    
-                        >
-                            {rows[index].selectedType || 'Select Type'}
-                             
-                        </Button>
-
-                    
-                        <Popover
-                            id={`type-popover-${row.id}`}
-                            open={open}
-                            anchorEl={anchorEl}
-                            onClose={handleClose}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'center',
-                            }}
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'center',
-                            }}
-                            style={{ minHeight: '700px', minWidth: '600px' }}
-                
-                        >
-                            <div style={{ minHeight: '700px', minWidth: '900px', overflow: 'auto' }}>
-                                <Typography sx={{paddingTop: '50px', paddingLeft: '50px', paddingRight: '50px', paddingButtom: '50px'}}>
-                                    <div>
-                                        <Typography variant="h5" gutterBottom sx={{display: 'flex', justifyContent: 'center'}} >Data Type</Typography> 
-                                        <Typography sx={{ paddingTop: '20px', display: 'flex', justifyContent: 'center' }}>
-                                            <TextField 
-                                                label="Search" 
-                                                variant="outlined" 
-                                                sx={{ width: '500px', marginBottom: '20px', '& .MuiInputBase-root': {borderRadius: '15px' }}}
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                {/* Popup Selector */}
+                                                <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
+                                                    <Button 
+                                                    // aria-describedby={`type-popover-${row.id}`}
+                                                    onClick={(event) => handleClick(event, row.id)} 
+                                                    variant="outlined" 
+                                                    sx={{ borderRadius: '15px', border: '1px solid #bfbfbf', width: '220px',height: '55px', display: 'flex', textAlign: 'left', justifyContent: 'flex-start', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: ' hidden',
+                                                    color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
                                                 
-                                            />
-                                        </Typography>
-                                    </div> 
+                                                    >
+                                                        {rows[index].selectedType || 'Select Type'}
+                                                        
+                                                    </Button>
 
-                                    <div key={row.id} style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                                        {filteredTypes.map((type, idx) => (
-                                            <Button 
-                                                key={idx}
-                                                onClick={() => handleTypeSelect(type.name, index )}
-                                                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    
+                                                    <Popover
+                                                        id={`type-popover-${row.id}`}
+                                                        open={open}
+                                                        anchorEl={anchorEl}
+                                                        onClose={handleClose}
+                                                        anchorOrigin={{
+                                                            vertical: 'bottom',
+                                                            horizontal: 'center',
+                                                        }}
+                                                        transformOrigin={{
+                                                            vertical: 'top',
+                                                            horizontal: 'center',
+                                                        }}
+                                                        style={{ minHeight: '700px', minWidth: '600px' }}
+                                            
+                                                    >
+                                                        <div style={{ minHeight: '700px', minWidth: '900px', overflow: 'auto' }}>
+                                                            <Typography sx={{paddingTop: '50px', paddingLeft: '50px', paddingRight: '50px', paddingButtom: '50px'}}>
+                                                                <div>
+                                                                    <Typography variant="h5" gutterBottom sx={{display: 'flex', justifyContent: 'center'}} >Data Type</Typography> 
+                                                                    <Typography sx={{ paddingTop: '20px', display: 'flex', justifyContent: 'center' }}>
+                                                                        <TextField 
+                                                                            label="Search" 
+                                                                            variant="outlined" 
+                                                                            sx={{ width: '500px', marginBottom: '20px', '& .MuiInputBase-root': {borderRadius: '15px' }}}
+                                                                            value={searchQuery}
+                                                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                                                            
+                                                                        />
+                                                                    </Typography>
+                                                                </div> 
 
-                                                <div>{type.name}</div>
-                                                <div style={{ fontSize: '0.6rem', color: 'gray' }}>{type.description}</div>
-                                                
-                                            </Button>
-                                        
-                                        ))}
-                                    </div>
-                                </Typography>  
-                            </div> 
-                        </Popover>
-                    </FormControl>   
+                                                                <div key={row.id} style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                                                                    {filteredTypes.map((type, idx) => (
+                                                                        <Button 
+                                                                            key={idx}
+                                                                            onClick={() => handleTypeSelect(type.name, index )}
+                                                                            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+
+                                                                            <div>{type.name}</div>
+                                                                            <div style={{ fontSize: '0.6rem', color: 'gray' }}>{type.description}</div>
+                                                                            
+                                                                        </Button>
+                                                                    
+                                                                    ))}
+                                                                </div>
+                                                            </Typography>  
+                                                        </div> 
+                                                    </Popover>
+                                                </FormControl>   
                 
 
-                    {/* Percentage of Blanks Input */}
-                    <TextField
-                        sx={{ minWidth: 100, width: 100, marginLeft: '10px' }}
-                        value={row.blanks}
-                        onChange={(e) => {
-                            let newBlanks = e.target.value;
-                            // Remove leading zeros if the input is not "0"
-                            if (newBlanks !== '0') {
-                                newBlanks = newBlanks.replace(/^0+/, '');
-                            }
-                            // Convert negative numbers to "0"
-                            if (newBlanks === '' || newBlanks === '-' || /^\d+$/.test(newBlanks)) {
-                                if (/^\d*$/.test(newBlanks) && newBlanks >= 0 && newBlanks <= 100) {
-                                    setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
-                                }
-                            }
-                        }}
-                        label=""
-                        InputProps={{
-                            type: 'text', // Used text here to allow manipulation before converting to number
-                            endAdornment: '%',
-                            style: { borderRadius: '15px'}
-                        }}
-                        placeholder="0"
-                    />
+                                                {/* Percentage of Blanks Input */}
+                                                <TextField
+                                                    sx={{ minWidth: 100, width: 100, marginLeft: '10px' }}
+                                                    value={row.blanks}
+                                                    onChange={(e) => {
+                                                        let newBlanks = e.target.value;
+                                                        // Remove leading zeros if the input is not "0"
+                                                        if (newBlanks !== '0') {
+                                                            newBlanks = newBlanks.replace(/^0+/, '');
+                                                        }
+                                                        // Convert negative numbers to "0"
+                                                        if (newBlanks === '' || newBlanks === '-' || /^\d+$/.test(newBlanks)) {
+                                                            if (/^\d*$/.test(newBlanks) && newBlanks >= 0 && newBlanks <= 100) {
+                                                                setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
+                                                            }
+                                                        }
+                                                    }}
+                                                    label=""
+                                                    InputProps={{
+                                                        type: 'text', // Used text here to allow manipulation before converting to number
+                                                        endAdornment: '%',
+                                                        style: { borderRadius: '15px'}
+                                                    }}
+                                                    placeholder="0"
+                                                />
 
 
-                    {/* Other Options */}
-                    <div style={{ minWidth: 20, marginLeft: '10px'}}>
-                        {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].selectedType))}
-                    </div>
+                                                {/* Other Options */}
+                                                <div style={{ minWidth: 20, marginLeft: '10px'}}>
+                                                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].selectedType))}
+                                                </div>
 
-                    {/* Delete Button */}
-                    {rows.length > 1 && (
-                        <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
-                    )}
-                </div>
+                                                {/* Delete Button */}
+                                                {rows.length > 1 && (
+                                                    <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
+                                                )}
+                                            </div>
                                         </div>
                                     )}
                                 </Draggable>
@@ -378,50 +433,50 @@ export default function App() {
                     ADD
                 </Button>
             </div>
-
-            
+ 
             <div style={{ margin: '20px 20px', height: '1.5px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
 
             <div style={{ display: 'flex', alignItems: 'center' }}>
 
-            {/* Number of Rows Input */}
-            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
-                Number of Rows: 
-                <TextField
-                    sx={{ minWidth: 200, marginLeft: '5px', '& .MuiInputBase-root': {borderRadius: '15px' }}}
-                    onChange={(e) => {
-                        const newNumOfRows = e.target.value;
-                        setNumberOfRowsInOutput(newNumOfRows);
-                    }}
-                    label=""
-                    variant="outlined"
-                    value='1000'
-                />
-            </div>
+                {/* Number of Rows Input */}
+                <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
+                    Number of Rows: 
+                    <TextField
+                        sx={{ minWidth: 200, marginLeft: '5px', '& .MuiInputBase-root': {borderRadius: '15px' }}}
+                        onChange={(e) => {
+                            const newNumOfRows = e.target.value;
+                            setNumberOfRowsInOutput(newNumOfRows);
+                        }}
+                        label=""
+                        variant="outlined"
+                        value={numberOfRowsInOutput}
+                    />
+                </div>
 
-            {/* Format */}
-            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
-                Format: 
-                <Select 
-                    value={format}
-                    onChange={handleFormatChange}
-                    variant="outlined" 
-                    MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} 
-                    style={{ marginLeft: '10px', marginRight: '10px', borderRadius: '15px' }}
-                >
-                    <MenuItem value="JSON">JSON</MenuItem>
-                    <MenuItem value="SQL">SQL</MenuItem>
-                </Select>
-            </div>
+                {/* Format */}
+                <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
+                    Format: 
+                    <Select 
+                        value={format}
+                        onChange={handleFormatChange}
+                        variant="outlined" 
+                        MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} 
+                        style={{ marginLeft: '10px', marginRight: '10px', borderRadius: '15px' }}
+                    >
+                        <MenuItem value="CSV">CSV</MenuItem>
+                        <MenuItem value="JSON">JSON</MenuItem>
+                        <MenuItem value="SQL">SQL</MenuItem>
+                    </Select>
+                </div>
 
-            {/* Generate Data Button with Format Dropdown Picker */}
-            <div style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
-                <Button variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
-                    Generate
-                </Button>
-            </div>
-        </div>    
-    </div>
+                {/* Generate Data Button with Format Dropdown Picker */}
+                <div style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                    <Button variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                        Generate
+                    </Button>
+                </div>
+            </div>              
+        </div>
     );
 }
 
