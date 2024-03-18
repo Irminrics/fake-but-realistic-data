@@ -5,21 +5,21 @@
 // Colour (Done)
 // Custom List
 // Dataset Column
-// Datetime
-// Frequency
-// GUID
-// Hex Colour
-// ISBN
+// Datetime 
+// Frequency (Done)
+// GUID (Done)
+// Hex Colour (Done)! Hashtag causing problems
+// ISBN (Done)
 // MongoDB ObjectID
 // Nato Phonetic
-// Number
-// Paragraphs
-// Password
-// Password Hash
+// Number (Done)
+// Paragraphs (Done)
+// Password (Done)! Hashtag causing problems
+// Password Hash (Done)
 // Row Number (Done)
 // Sentences
 // Sequence
-// Short Hex Colour
+// Short Hex Colour (Done)! Hashtag causing problems
 // Time
 // ULID
 // Words
@@ -96,3 +96,146 @@ export function generateRandomColorName() {
     // Return a random color name from the list
     return colorNames[Math.floor(Math.random() * colorNames.length)];
 }
+
+
+// Function to generate a random frequency
+export function generateRandomFrequency() {
+    // Sample frequencies
+    const frequencies = ['Never', 'Once', 'Seldom', 'Often', 'Daily', 'Weekly', 'Monthly', 'Yearly'];
+    // Return a random frequency from the list
+    return frequencies[Math.floor(Math.random() * frequencies.length)];
+}
+
+
+// Function to generate a random GUID
+export function generateRandomGUID() {
+    // Generate a random GUID
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+
+// Function to generate a random color
+export function generateRandomHexColor() {
+    // Generate a random hex color
+    return Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+}
+
+
+// Function to generate a random ISBN number
+export function generateRandomISBN() {
+    // Generate a random ISBN number
+    return Math.floor(Math.random() * 1000000000) + '-' + Math.floor(Math.random() * 10);
+}
+
+/**
+ * Function to generate a random number within a specified range
+ * @param {number} min - The minimum value for the random number (inclusive)
+ * @param {number} max - The maximum value for the random number (exclusive)
+ * @param {number} decimals - The number of decimal places for the random number
+ * @returns {number} - A random number within the specified range
+ */
+export function generateRandomNumber(min, max, decimals) {
+    // Generate a random number within the specified range
+    let randomNumber = Math.random() * (max - min) + min;
+
+    // Round the random number to the specified number of decimal places
+    if (decimals !== undefined && decimals >= 0) {
+        const factor = Math.pow(10, decimals);
+        randomNumber = Math.round(randomNumber * factor) / factor;
+    }
+
+    return randomNumber;
+}
+
+// Function to generate a random password
+export function generateRandomPassword(length, minUppercase, minLowercase, minNumbers, minSymbols) {
+    // Define the character sets for the password
+    const charset = {
+        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        lowercase: 'abcdefghijklmnopqrstuvwxyz',
+        numbers: '0123456789',
+        symbols: '!@#$%^&*()_+[]{}|;:,.<>?'
+    };
+
+    // Create a character set for the password based on the minimum requirements
+    let passwordCharset = '';
+    if (minUppercase > 0) passwordCharset += charset.uppercase;
+    if (minLowercase > 0) passwordCharset += charset.lowercase;
+    if (minNumbers > 0) passwordCharset += charset.numbers;
+    if (minSymbols > 0) passwordCharset += charset.symbols;
+
+    // If any character set is required, but not provided, return an empty string
+    if (passwordCharset === '') return '';
+
+    // Generate a password with the minimum requirements
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * passwordCharset.length);
+        password += passwordCharset.charAt(randomIndex);
+    }
+
+    // Check if the generated password meets the minimum requirements
+    const regexUppercase = /[A-Z]/g;
+    const regexLowercase = /[a-z]/g;
+    const regexNumbers = /[0-9]/g;
+    const regexSymbols = /[!@$%^&*()_+[\]{}|<>?]/g;
+
+    const uppercaseMatches = password.match(regexUppercase) || [];
+    const lowercaseMatches = password.match(regexLowercase) || [];
+    const numbersMatches = password.match(regexNumbers) || [];
+    const symbolsMatches = password.match(regexSymbols) || [];
+
+    // If any requirement is not met, recursively call the function again until it meets the requirements
+    if (uppercaseMatches.length < minUppercase || lowercaseMatches.length < minLowercase || numbersMatches.length < minNumbers || symbolsMatches.length < minSymbols) {
+        return generateRandomPassword(length, minUppercase, minLowercase, minNumbers, minSymbols);
+    }
+
+    return password;
+}
+
+
+// Function to generate a random password hash
+export function generateRandomPasswordHash() {
+    // Generate a random password hash
+    return '$2b$10$' + Math.random().toString(36).substring(2);
+}
+
+
+// Function to generate random paragraphs
+export function generateRandomParagraphs(atLeast, atMost) {
+    // Sample paragraphs
+    const paragraphs = [
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+        'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+        'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+        'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+        'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
+        'Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
+        'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.',
+        'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.',
+        'Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?',
+        'Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?',
+        'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.',
+        'Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
+        'Et harum quidem rerum facilis est et expedita distinctio.',
+        'Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit'
+    ];
+    
+    // Generate a random number of paragraphs within the specified range
+    const numParagraphs = atLeast + Math.floor(Math.random() * (atMost - atLeast + 1));
+    // Return the specified number of paragraphs
+    return paragraphs.slice(0, numParagraphs).join(' ');
+}
+
+
+// Function to generate a random short hex color
+export function generateRandomShortHexColor() {
+    // Generate a random short hex color
+    const colorCode = Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    // Include the hashtag in the color code
+    return colorCode.substring(0, 3);
+}
+

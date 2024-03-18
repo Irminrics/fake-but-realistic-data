@@ -27,11 +27,10 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { TypeSpecimen } from '@mui/icons-material';
 import IconButton from "@mui/material/IconButton";
-import AlarmIcon from '@mui/icons-material/Alarm';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 
-import { generateRandomAddress, generateRandomColorName } from './generator';
+import * as generator from './generator';
 
 export default function App() {
     const [rows, setRows] = React.useState([{ id: 1, name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
@@ -44,20 +43,17 @@ export default function App() {
     const [searchQuery, setSearchQuery] = React.useState('');
 
     const handleClick = (event) => {
-        console.log('handleClick triggered');
-        console.log('Event:', event);
         setAnchorEl(event.currentTarget);
         setOpen(true);
     };
 
     const handleClose = () => {
-        console.log('handleClose triggered');
         setAnchorEl(null);
         setOpen(false);
     };
 
-    const handleTypeSelect = (typeName, rowId) => {
 
+    const handleTypeSelect = (typeName, rowId) => {
         const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + rowId;
 
         setRows(prevRows =>
@@ -65,7 +61,7 @@ export default function App() {
                 idx === rowId ? { ...r, selectedType: typeName, name: newName  } : r
             )
         );
-        
+ 
         handleClose();
     };
 
@@ -137,15 +133,46 @@ export default function App() {
                     return i + 1;
                 } else if (type === 'Address Line') {
                     // If type is Address Line, generate a random address
-                    return generateRandomAddress();
+                    return generator.generateRandomAddress();
                 } else if (type === 'Boolean') {
                     // If type is Boolean, generate a random boolean value (true or false)
                     return Math.random() < 0.5 ? 'true' : 'false';
                 } else if (type === 'Colour') {
                     // If type is Address Line, generate a random color
-                    return generateRandomColorName();
+                    return generator.generateRandomColorName();
                 } else if (type === 'Blank') {
                     return ``;
+                } else if (type === 'Frequency') {
+                    return generator.generateRandomFrequency();
+                } else if (type === 'GUID') {
+                    return generator.generateRandomGUID();
+                } else if (type === 'Hex Colour') {
+                    return '#' + generator.generateRandomHexColor();
+                } else if (type === 'ISBN') {
+                    return generator.generateRandomISBN();
+                } else if (type === 'Number') {
+                    // If type is Number, generate a random number within the specified range
+                    const min = parseFloat(document.getElementById(`min-num-text`).value) || 0;
+                    const max = parseFloat(document.getElementById(`max-num-text`).value) || 100;
+                    const decimals = parseInt(document.getElementById(`decimals-text`).value) || 0;
+                    return generator.generateRandomNumber(min, max, decimals);
+                } else if (type === 'Password') {
+                    // If type is Password, generate a random password
+                    const minLength = parseInt(document.getElementById(`password-options-min-length`).value) || 8;
+                    const minUpper = parseInt(document.getElementById(`password-options-upper`).value) || 1;
+                    const minLower = parseInt(document.getElementById(`password-options-lower`).value) || 1;
+                    const minNumber = parseInt(document.getElementById(`password-options-number`).value) || 1;
+                    const minSymbol = parseInt(document.getElementById(`password-options-symbol`).value) || 1;
+                    return generator.generateRandomPassword(minLength, minUpper, minLower, minNumber, minSymbol);
+                } else if (type === 'Password Hash') {
+                    return generator.generateRandomPasswordHash();
+                } else if (type === 'Paragraphs') {
+                    // If type is Paragraph, generate a random paragraph
+                    const min = parseInt(document.getElementById(`at-least-text`).value) || 1;
+                    const max = parseInt(document.getElementById(`at-most-text`).value) || 10;
+                    return generator.generateRandomParagraphs(min, max);
+                } else if (type === 'Short Hex Colour') {
+                    return generator.generateRandomShortHexColor();
                 } else {
                     // Handle other types as needed
                     return ``;
@@ -185,11 +212,11 @@ export default function App() {
                 {selectedInputTypeInfo.options.map(option => {
                     switch (option) {
                         case 'min-num-text':
-                            return <TextField key={option} id={option} label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="Min Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={0} />;
                         case 'max-num-text':
-                            return <TextField key={option} id={option} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={100} />;
                         case 'success-probability-text':
-                            return <TextField key={option} id={option} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
                         case 'custom-list-dropdown':
                             return (
                                 <FormControl key={option} sx={{ minWidth: 120, '& .MuiInputBase-root': {borderRadius: '15px' }}}>
@@ -218,15 +245,15 @@ export default function App() {
                                 <TimePicker id={`${option}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}}/>
                             </LocalizationProvider>;
                         case 'exponential-lambda-text':
-                            return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
                         case 'decimals-text':
-                            return <TextField key={option} id={option} label="Decimals" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="Decimals" inputProps={{ type: 'number', min: 0 }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={0} />;
                         case 'mean-text':
-                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
                         case 'stddev-text':
-                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
                         case 'time-text':
-                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
                         case 'start-at-text':
                             return <TextField key={option} id={option} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'step-text':
@@ -236,17 +263,17 @@ export default function App() {
                         case 'restart-at-text':
                             return <TextField key={option} id={option} label="Restart At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'at-least-text':
-                            return <TextField key={option} id={option} label="At Least" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="At Least" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={1} />;
                         case 'at-most-text':
-                            return <TextField key={option} id={option} label="At Most" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
+                            return <TextField key={option} id={option} label="At Most" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={10} />;
                         case 'password-options':
                             return (
                                 <>
-                                <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                                <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                                <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number' }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                                <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number' }} sx={{ maxWidth: 125, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                                <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number' }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
+                                    <TextField key={option} id={`${option}-min-length`} label="Min Length" inputProps={{ type: 'number', min: 8 }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={8} />
+                                    <TextField key={option} id={`${option}-upper`} label="Min Upper" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={1} />
+                                    <TextField key={option} id={`${option}-lower`} label="Min Lower" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 100, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={1} />
+                                    <TextField key={option} id={`${option}-number`} label="Min Numbers" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 125, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={1} />
+                                    <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={1} />
                                 </>
                             );
                         default:
@@ -315,7 +342,6 @@ export default function App() {
                                                 {/* Popup Selector */}
                                                 <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
                                                     <Button 
-                                                    // aria-describedby={`type-popover-${row.id}`}
                                                     onClick={(event) => handleClick(event, row.id)} 
                                                     variant="outlined" 
                                                     sx={{ borderRadius: '15px', border: '1px solid #bfbfbf', width: '220px',height: '55px', display: 'flex', textAlign: 'left', justifyContent: 'flex-start', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: ' hidden',
@@ -326,7 +352,6 @@ export default function App() {
                                                         
                                                     </Button>
 
-                    
                                                     <Popover
                                                         id={`type-popover-${row.id}`}
                                                         open={open}
