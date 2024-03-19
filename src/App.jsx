@@ -28,6 +28,7 @@ export default function App() {
     const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '50', customListInputType: 'random' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
+    const [openCustomListWeightedForm, setOpenCustomListWeightedForm] = React.useState(false);
 
     const handleAddRow = () => {
         console.log('Adding a new row');
@@ -38,7 +39,6 @@ export default function App() {
         };
         setRows(prevRows => [...prevRows, newRow]);
     };
-
 
     const handleDeleteRow = (indexToDelete) => {
         setRows(prevRows => prevRows.filter((row, index) => index !== indexToDelete));
@@ -127,10 +127,6 @@ export default function App() {
         const encodedUri = encodeURI(csvContent);
         return encodedUri;
     };
-
-
-
-
 
     // Function to handle CSV download
     const handleDownloadCSV = () => {
@@ -239,13 +235,17 @@ export default function App() {
     
         // Render input fields based on options
         return (
-            <div style={{ minWidth: 600, display: 'flex' }}>
+            <div style={{ maxWidth: 80, minWidth: 20, display: 'flex' }}>
                 {selectedCustomListType.options.map(option => {
                     switch (option) {
                         case 'weighted':
-                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Weight Distribution" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                            return <Button variant="outlined" onClick={handleCustomListWeightedFormOpen}>
+                                Set Weights
+                            </Button>
                         case 'dynamic':
-                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Custom Distribution" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} />;
+                            return <Button variant="outlined" onClick={handleCustomListWeightedFormOpen}>
+                                Set Custom Distribution
+                            </Button>
                         default:
                             break;
                     }
@@ -253,6 +253,14 @@ export default function App() {
             </div>
         );
     };
+    
+    const handleCustomListWeightedFormOpen = () => {
+        setOpenCustomListWeightedForm(true);
+    };
+
+    const handleCustomListWeightedFormClose = () => {
+        setOpenCustomListWeightedForm(false);
+      };
     
 
     return (
