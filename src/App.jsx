@@ -3,6 +3,8 @@ import * as React from 'react';
 import Header from './components/Header';
 import { basicInputTypes } from './inputType';
 import { customListTypes } from './customListType';
+import { datetimeFormatListTypes } from './datetimeFormatListTypes';
+import { timeFormatListTypes } from './timeFormatListTypes';
 
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
@@ -29,6 +31,18 @@ export default function App() {
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
     const [openCustomListWeightedForm, setOpenCustomListWeightedForm] = React.useState(false);
+    const [customListValue, setCustomListValue] = React.useState('random');
+
+    const [datetimeFormatListValue, setDatetimeFormatListValue] = React.useState('DD/MM/YYYY');
+    const [timeFormatListValue, setTimeFormatListValue] = React.useState('h:mm A');
+
+    // State hooks for start and end dates
+    const [startDate, setStartDate] = React.useState(null);
+    const [endDate, setEndDate] = React.useState(null);
+
+    // State hooks for start and end time
+    const [startTime, setStartTime] = React.useState(null);
+    const [endTime, setEndTime] = React.useState(null);
 
     const handleAddRow = () => {
         console.log('Adding a new row');
@@ -46,6 +60,18 @@ export default function App() {
 
     const handleFormatChange = (event) => {
         setFormat(event.target.value);
+    };
+
+    const handleCustomListChange = (event) => {
+        setCustomListValue(event.target.value);
+    };
+
+    const handleDatetimeFormatListChange = (event) => {
+        setDatetimeFormatListValue(event.target.value);
+    };
+
+    const handleTimeFormatListChange = (event) => {
+        setTimeFormatListValue(event.target.value);
     };
 
     const handleDragEnd = (result) => {
@@ -67,6 +93,18 @@ export default function App() {
         // Append headers
         csvContent += headers.join(',') + '\r\n';
 
+        // Generate sequence if needed
+        const startAt = parseInt(document.getElementById(`start-at-text`)?.value) || 1;
+        const step = parseInt(document.getElementById(`step-text`)?.value) || 1;
+        const repeat = parseInt(document.getElementById(`repeat-text`)?.value) || 1;
+        const restartAt = parseInt(document.getElementById(`restart-at-text`)?.value);
+        let sequence = [];
+
+        if (types.includes("Sequence")) {
+            sequence = generator.generateSequence(startAt, step, repeat, restartAt, numberOfRowsInOutput);
+        }
+
+        
         // Repeat types based on numberOfRowsInOutput
         for (let i = 0; i < numberOfRowsInOutput; i++) {
             const rowData = types.map((type, index) => {
@@ -84,6 +122,8 @@ export default function App() {
                     return generator.generateRandomColorName();
                 } else if (type === 'Blank') {
                     return ``;
+                } else if (type === 'Datetime') {
+                    return generator.generateRandomDatetime(startDate, endDate, datetimeFormatListValue);
                 } else if (type === 'Frequency') {
                     return generator.generateRandomFrequency();
                 } else if (type === 'GUID') {
@@ -92,6 +132,12 @@ export default function App() {
                     return '#' + generator.generateRandomHexColor();
                 } else if (type === 'ISBN') {
                     return generator.generateRandomISBN();
+                } else if (type === 'MongoDB ObjectID') {
+                    return generator.generateRandomMongoDBObjectId();
+                } else if (type === 'Nato Phonetic') {
+                    const min = parseFloat(document.getElementById(`at-least-text`).value) || 3;
+                    const max = parseFloat(document.getElementById(`at-most-text`).value) || 10;
+                    return generator.generateRandomNatoPhonetics(min, max);
                 } else if (type === 'Number') {
                     // If type is Number, generate a random number within the specified range
                     const min = parseFloat(document.getElementById(`min-num-text`).value) || 0;
@@ -115,6 +161,21 @@ export default function App() {
                     return generator.generateRandomParagraphs(min, max);
                 } else if (type === 'Short Hex Colour') {
                     return generator.generateRandomShortHexColor();
+                } else if (type === 'Sentences') {
+                    const min = parseInt(document.getElementById(`at-least-text`).value) || 1;
+                    const max = parseInt(document.getElementById(`at-most-text`).value) || 10;
+                    return generator.generateRandomSentences(min, max);
+                } else if (type === 'Sequence') {
+                    return sequence[i];
+                } else if (type === 'Time') {
+                    return generator.generateRandomTime(startTime, endTime, timeFormatListValue);
+                } else if (type === 'ULID') {
+                    return generator.generateRandomULID();
+                } else if (type === 'Words') {
+                    // If type is Words, generate random words
+                    const min = parseInt(document.getElementById(`at-least-text`).value) || 1;
+                    const max = parseInt(document.getElementById(`at-most-text`).value) || 10;
+                    return generator.generateRandomWords(min, max);
                 } else {
                     // Handle other types as needed
                     return ``;
@@ -180,14 +241,48 @@ export default function App() {
                             );
                         case 'date-time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker id={`${option}-${index}-start`} label="Start Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
-                                <DatePicker id={`${option}-${index}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px' }} />
+                                <DatePicker label="Start Date" value={startDate} onChange={(newValue) => setStartDate(newValue)} renderInput={(params) => <TextField {...params} />} sx={{ maxWidth: 200, marginRight: '10px' }}/>
+                                <DatePicker label="End Date" value={endDate} onChange={(newValue) => setEndDate(newValue)} renderInput={(params) => <TextField {...params} />} sx={{ maxWidth: 200, marginRight: '10px' }}/>
                             </LocalizationProvider>;
+                        case 'date-time-format-picker':
+                            return (
+                                <FormControl key={option} sx={{ minWidth: 120 }}>
+                                    <InputLabel id={option}></InputLabel>
+                                    <Select
+                                        labelId={option}
+                                        value={datetimeFormatListValue}
+                                        onChange={handleDatetimeFormatListChange}
+                                        autoWidth
+                                        label=""
+                                    >
+                                        {datetimeFormatListTypes.map((type, idx) => (
+                                            <MenuItem key={idx} value={type.value}>{type.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            );
                         case 'time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <TimePicker id={`${option}-${index}-start`} label="Start Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
-                                <TimePicker id={`${option}-${index}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px' }} />
+                                <TimePicker label="Start Time" onChange={(newValue) => setStartTime(newValue)} renderInput={(params) => <TextField {...params} />} sx={{ maxWidth: 150, marginRight: '10px' }} />
+                                <TimePicker label="End Time" onChange={(newValue) => setEndTime(newValue)} renderInput={(params) => <TextField {...params} />} sx={{ maxWidth: 150, marginRight: '10px' }} />
                             </LocalizationProvider>;
+                        case 'time-format-picker':
+                            return (
+                                <FormControl key={option} sx={{ minWidth: 120 }}>
+                                    <InputLabel id={option}></InputLabel>
+                                    <Select
+                                        labelId={option}
+                                        value={timeFormatListValue}
+                                        onChange={handleTimeFormatListChange}
+                                        autoWidth
+                                        label=""
+                                    >
+                                        {timeFormatListTypes.map((type, idx) => (
+                                            <MenuItem key={idx} value={type.value}>{type.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            );
                         case 'exponential-lambda-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'decimals-text':
@@ -199,13 +294,13 @@ export default function App() {
                         case 'time-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
                         case 'start-at-text':
-                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={1} />;
                         case 'step-text':
-                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Start At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Step" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={1} />;
                         case 'repeat-text':
-                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Repeat" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Repeat" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={1} />;
                         case 'restart-at-text':
-                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Restart At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} />;
+                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Restart At" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={null} />;
                         case 'at-least-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="At Least" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={1} />;
                         case 'at-most-text':

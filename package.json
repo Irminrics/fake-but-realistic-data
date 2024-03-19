@@ -25,7 +25,9 @@
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
-    "styled-components": "^6.1.8"
+    "styled-components": "^6.1.8",
+    "ulid": "^2.3.0",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@types/react": "^18.2.64",
