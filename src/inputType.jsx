@@ -32,7 +32,7 @@ export const basicInputTypes = [
     {
         name: 'Datetime',
         description: '13/03/2024 3.13.2024 13-Mar-2024',
-        options: ['date-time-picker']
+        options: ['date-time-picker', 'date-time-format-picker']
     },
     {
         name: 'Frequency',
@@ -62,7 +62,7 @@ export const basicInputTypes = [
     {
         name: 'Nato Phonetic',
         description: 'Whiskey, Alpha, Bravo',
-        options: []
+        options: ['at-least-text', 'at-most-text']
     },
     {
         name: 'Number',
@@ -107,7 +107,7 @@ export const basicInputTypes = [
     {
         name: 'Time',
         description: '3:30 PM, 15:30',
-        options: ['time-picker']
+        options: ['time-picker', 'time-format-picker']
     },
     {
         name: 'ULID',

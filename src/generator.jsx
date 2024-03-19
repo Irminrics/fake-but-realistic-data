@@ -5,25 +5,30 @@
 // Colour (Done)
 // Custom List
 // Dataset Column
-// Datetime 
+// Datetime (Done)
 // Frequency (Done)
 // GUID (Done)
 // Hex Colour (Done)! Hashtag causing problems
 // ISBN (Done)
-// MongoDB ObjectID
-// Nato Phonetic
+// MongoDB ObjectID (Done???? But not exactly)
+// Nato Phonetic (Done)
 // Number (Done)
 // Paragraphs (Done)
 // Password (Done)! Hashtag causing problems
 // Password Hash (Done)
 // Row Number (Done)
-// Sentences
-// Sequence
+// Sentences (Done)
+// Sequence (Done)
 // Short Hex Colour (Done)! Hashtag causing problems
-// Time
-// ULID
-// Words
+// Time (Done)
+// ULID (Done)
+// Words (Done)
 
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { ulid } from 'ulid';
+
+dayjs.extend(customParseFormat);
 
 // Function to generate a random overseas address
 export function generateRandomAddress() {
@@ -97,6 +102,24 @@ export function generateRandomColorName() {
     return colorNames[Math.floor(Math.random() * colorNames.length)];
 }
 
+// Function to generate a random datetime
+export function generateRandomDatetime(startDate, endDate, datetimeFormat) {
+    // Convert the start and end dates to timestamps
+    const start = dayjs(startDate).valueOf(); // .valueOf() gets the timestamp
+    const end = dayjs(endDate).valueOf();
+
+    // Generate a random timestamp between the start and end
+    const randomTimestamp = start + Math.random() * (end - start);
+
+    // Convert the timestamp back to a dayjs object and format it
+    const randomDate = dayjs(randomTimestamp).format(datetimeFormat);
+
+    // Output for debugging
+    // console.log(randomDate);
+    
+    // Return the formatted date as a string
+    return randomDate;
+}
 
 // Function to generate a random frequency
 export function generateRandomFrequency() {
@@ -128,6 +151,37 @@ export function generateRandomHexColor() {
 export function generateRandomISBN() {
     // Generate a random ISBN number
     return Math.floor(Math.random() * 1000000000) + '-' + Math.floor(Math.random() * 10);
+}
+
+// Function to generate a random MongoDB ObjectID
+export function generateRandomMongoDBObjectId() {
+    // This function generates a random ObjectId-like string.
+    const hexString = '0123456789abcdef';
+    let objectId = '';
+    
+    for (let i = 0; i < 24; i++) {
+        objectId += hexString.charAt(Math.floor(Math.random() * hexString.length));
+    }
+    
+    return objectId;
+}
+
+export function generateRandomNatoPhonetics(atLeast, atMost) {
+    const natoAlphabets = [
+        'Alfa', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliett', 'Kilo', 'Lima', 
+        'Mike', 'November', 'Oscar', 'Papa', 'Quebec', 'Romeo', 'Sierra', 'Tango', 'Uniform', 'Victor', 'Whiskey', 'X-ray', 
+        'Yankee', 'Zulu'
+    ];
+
+    const numberOfPhonetics = atLeast + Math.floor(Math.random() * (atMost - atLeast + 1));
+    let result = [];
+  
+    for (let i = 0; i < numberOfPhonetics; i++) {
+      const randomIndex = Math.floor(Math.random() * natoAlphabets.length);
+      result.push(natoAlphabets[randomIndex]);
+    }
+  
+    return result.join(' ');
 }
 
 /**
@@ -239,3 +293,99 @@ export function generateRandomShortHexColor() {
     return colorCode.substring(0, 3);
 }
 
+// Function to generate a random sentences
+export function generateRandomSentences(atLeast, atMost) {
+    const paragraph = `
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
+    Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam.
+    Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque.
+    Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu.
+    Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst.
+    `;
+
+    const sentences = paragraph.match(/[^.!?]+[.!?]\s/g);
+    const numberOfSentences = atLeast + Math.floor(Math.random() * (atMost - atLeast + 1));
+    let randomSentences = [];
+
+    for (let i = 0; i < numberOfSentences; i++) {
+    const randomIndex = Math.floor(Math.random() * sentences.length);
+    randomSentences.push(sentences[randomIndex].trim());
+    }
+
+    return randomSentences.join(' ');
+}
+
+// Function to generate a sequence
+export function generateSequence(startAt, step, repeat, restartAt, count) {
+    let sequence = [];
+    let current = startAt;
+    let repetitions = 0;
+    let cycleLength = restartAt - startAt;
+  
+    for (let i = 0; i < count; i++) {
+        sequence.push(current);
+        repetitions++;
+
+        if (repetitions >= repeat) {
+        current += step;
+        repetitions = 0;
+        }
+    
+        if (restartAt !== null && current > restartAt) {
+            let offset = (current - startAt - 1) % cycleLength;
+            current = startAt + offset;
+        }
+    }
+  
+    return sequence;
+}
+  
+
+// Function to generate a random time
+export function generateRandomTime(startTime, endTime, timeFormat) {
+    console.log(startTime);
+    // Use dayjs to parse the times, assuming the same date for both
+    const startOfDay = dayjs().startOf('day');
+    const parsedStartTime = startOfDay.add(dayjs(startTime, timeFormat).diff(startOfDay));
+    const parsedEndTime = startOfDay.add(dayjs(endTime, timeFormat).diff(startOfDay));
+
+    // Calculate random time in milliseconds
+    const randomTime = parsedStartTime.valueOf() + Math.random() * (parsedEndTime.valueOf() - parsedStartTime.valueOf());
+
+    // Return as formatted time string
+    return dayjs(randomTime).format(timeFormat);
+}
+
+// Function to generate random ULID
+export function generateRandomULID() {
+    return ulid();
+}
+
+// Function to generate random words
+export function generateRandomWords(atLeast, atMost) {
+    const words = [
+        'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 
+        'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 
+        'dolore', 'magna', 'aliqua', 'ut', 'enim', 'ad', 'minim', 'veniam', 
+        'quis', 'nostrud', 'exercitation', 'ullamco', 'laboris', 'nisi', 'ut', 
+        'aliquip', 'ex', 'ea', 'commodo', 'consequat', 'duis', 'aute', 'irure', 
+        'dolor', 'in', 'reprehenderit', 'in', 'voluptate', 'velit', 'esse', 
+        'cillum', 'dolore', 'eu', 'fugiat', 'nulla', 'pariatur', 'excepteur', 
+        'sint', 'occaecat', 'cupidatat', 'non', 'proident', 'sunt', 'in', 'culpa', 
+        'qui', 'officia', 'deserunt', 'mollit', 'anim', 'id', 'est', 'laborum'
+      ];
+
+    const numberOfWords = atLeast + Math.floor(Math.random() * (atMost - atLeast + 1));
+    let randomWords = [];
+  
+    for (let i = 0; i < numberOfWords; i++) {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      randomWords.push(words[randomIndex]);
+    }
+  
+    return randomWords.join(' ');
+}
