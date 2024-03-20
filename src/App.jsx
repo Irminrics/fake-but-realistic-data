@@ -3,6 +3,8 @@ import * as React from 'react';
 import Header from './components/Header';
 import { basicInputTypes } from './inputType';
 import { customListTypes } from './customListType';
+import { datetimeFormatListTypes } from './datetimeFormatListTypes';
+import { timeFormatListTypes } from './timeFormatListTypes';
 
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
@@ -29,7 +31,6 @@ import { TypeSpecimen } from '@mui/icons-material';
 import IconButton from "@mui/material/IconButton";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
-
 import * as generator from './generator';
 
 export default function App() {
@@ -44,13 +45,12 @@ export default function App() {
 
     const open = Boolean(anchorEl);
 
-
-    const handleClick = (event) => {
+    const handleClick = (event, index) => {
         setAnchorEl(event.currentTarget);
         setOpen(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (index) => {
         setAnchorEl(null);
         setOpen(false);
     };
@@ -66,7 +66,7 @@ export default function App() {
  
         handleClose();
     };
-
+        
     // Filter the basicInputTypes array based on the search query
     const filteredTypes = basicInputTypes.filter(type =>
         type.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -82,6 +82,18 @@ export default function App() {
         }];
         setRows(defaultRows);
     };
+
+    const [datetimeFormatListValue, setDatetimeFormatListValue] = React.useState('DD/MM/YYYY');
+    const [timeFormatListValue, setTimeFormatListValue] = React.useState('h:mm A');
+
+    // State hooks for start and end dates
+    const [startDate, setStartDate] = React.useState(null);
+    const [endDate, setEndDate] = React.useState(null);
+
+    // State hooks for start and end time
+    const [startTime, setStartTime] = React.useState(null);
+    const [endTime, setEndTime] = React.useState(null);
+
 
     const handleAddRow = () => {
         console.log('Adding a new row');
@@ -106,6 +118,15 @@ export default function App() {
         setCustomListValue(event.target.value);
     };
 
+    const handleDatetimeFormatListChange = (event) => {
+        setDatetimeFormatListValue(event.target.value);
+    };
+
+    const handleTimeFormatListChange = (event) => {
+        setTimeFormatListValue(event.target.value);
+    };
+
+
     const handleDragEnd = (result) => {
         if (!result.destination) return;
         const items = Array.from(rows);
@@ -125,6 +146,18 @@ export default function App() {
         // Append headers
         csvContent += headers.join(',') + '\r\n';
 
+        // Generate sequence if needed
+        const startAt = parseInt(document.getElementById(`start-at-text`)?.value) || 1;
+        const step = parseInt(document.getElementById(`step-text`)?.value) || 1;
+        const repeat = parseInt(document.getElementById(`repeat-text`)?.value) || 1;
+        const restartAt = parseInt(document.getElementById(`restart-at-text`)?.value);
+        let sequence = [];
+
+        if (types.includes("Sequence")) {
+            sequence = generator.generateSequence(startAt, step, repeat, restartAt, numberOfRowsInOutput);
+        }
+
+        
         // Repeat types based on numberOfRowsInOutput
         for (let i = 0; i < numberOfRowsInOutput; i++) {
             const rowData = types.map((type, index) => {
@@ -142,6 +175,8 @@ export default function App() {
                     return generator.generateRandomColorName();
                 } else if (type === 'Blank') {
                     return ``;
+                } else if (type === 'Datetime') {
+                    return generator.generateRandomDatetime(startDate, endDate, datetimeFormatListValue);
                 } else if (type === 'Frequency') {
                     return generator.generateRandomFrequency();
                 } else if (type === 'GUID') {
@@ -150,6 +185,12 @@ export default function App() {
                     return '#' + generator.generateRandomHexColor();
                 } else if (type === 'ISBN') {
                     return generator.generateRandomISBN();
+                } else if (type === 'MongoDB ObjectID') {
+                    return generator.generateRandomMongoDBObjectId();
+                } else if (type === 'Nato Phonetic') {
+                    const min = parseFloat(document.getElementById(`at-least-text`).value) || 3;
+                    const max = parseFloat(document.getElementById(`at-most-text`).value) || 10;
+                    return generator.generateRandomNatoPhonetics(min, max);
                 } else if (type === 'Number') {
                     // If type is Number, generate a random number within the specified range
                     const min = parseFloat(document.getElementById(`min-num-text`).value) || 0;
@@ -173,6 +214,21 @@ export default function App() {
                     return generator.generateRandomParagraphs(min, max);
                 } else if (type === 'Short Hex Colour') {
                     return generator.generateRandomShortHexColor();
+                } else if (type === 'Sentences') {
+                    const min = parseInt(document.getElementById(`at-least-text`).value) || 1;
+                    const max = parseInt(document.getElementById(`at-most-text`).value) || 10;
+                    return generator.generateRandomSentences(min, max);
+                } else if (type === 'Sequence') {
+                    return sequence[i];
+                } else if (type === 'Time') {
+                    return generator.generateRandomTime(startTime, endTime, timeFormatListValue);
+                } else if (type === 'ULID') {
+                    return generator.generateRandomULID();
+                } else if (type === 'Words') {
+                    // If type is Words, generate random words
+                    const min = parseInt(document.getElementById(`at-least-text`).value) || 1;
+                    const max = parseInt(document.getElementById(`at-most-text`).value) || 10;
+                    return generator.generateRandomWords(min, max);
                 } else {
                     // Handle other types as needed
                     return ``;
@@ -232,14 +288,48 @@ export default function App() {
                             );
                         case 'date-time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker id={`${option}-start`} label="Start Date" sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                                <DatePicker id={`${option}-end`} label="End Date" sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}}/>
+                                <DatePicker label="Start Date" value={startDate} onChange={(newValue) => setStartDate(newValue)} renderInput={(params) => <TextField {...params} />} sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }} }/>
+                                <DatePicker label="End Date" value={endDate} onChange={(newValue) => setEndDate(newValue)} renderInput={(params) => <TextField {...params} />} sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }} }/>
                             </LocalizationProvider>;
+                        case 'date-time-format-picker':
+                            return (
+                                <FormControl key={option} sx={{ minWidth: 120 }}>
+                                    <InputLabel id={option}></InputLabel>
+                                    <Select
+                                        labelId={option}
+                                        value={datetimeFormatListValue}
+                                        onChange={handleDatetimeFormatListChange}
+                                        autoWidth
+                                        label=""
+                                    >
+                                        {datetimeFormatListTypes.map((type, idx) => (
+                                            <MenuItem key={idx} value={type.value}>{type.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            );
                         case 'time-picker':
                             return <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <TimePicker id={`${option}-start`} label="Start Time" sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />
-                                <TimePicker id={`${option}-end`} label="End Time" sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}}/>
+                                <TimePicker label="Start Time" onChange={(newValue) => setStartTime(newValue)} renderInput={(params) => <TextField {...params} />} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }} } />
+                                <TimePicker label="End Time" onChange={(newValue) => setEndTime(newValue)} renderInput={(params) => <TextField {...params} />} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }} } />
                             </LocalizationProvider>;
+                        case 'time-format-picker':
+                            return (
+                                <FormControl key={option} sx={{ minWidth: 120 }}>
+                                    <InputLabel id={option}></InputLabel>
+                                    <Select
+                                        labelId={option}
+                                        value={timeFormatListValue}
+                                        onChange={handleTimeFormatListChange}
+                                        autoWidth
+                                        label=""
+                                    >
+                                        {timeFormatListTypes.map((type, idx) => (
+                                            <MenuItem key={idx} value={type.value}>{type.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            );
                         case 'exponential-lambda-text':
                             return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
                         case 'decimals-text':
@@ -335,10 +425,10 @@ export default function App() {
                                                     }}
                                                 />
                     
-                                                {/* Popup Selector */}
                                                 <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
                                                     <Button 
-                                                    aria-describedby={row.id}
+                                                    // aria-describedby={row.id}
+                                                    aria-describedby={`popover-${row.id}`}
                                                     onClick={(event) => handleClick(event, index)} 
                                                     // row.id
                                                     variant="outlined" 
@@ -346,15 +436,20 @@ export default function App() {
                                                     color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
                                                 
                                                     >   
-                                                        {rows[index].selectedType || 'Select Type'}
-                                                        
+                                                        {/* {rows[index].selectedType || 'Select Type'} */}
+                                                        {row.selectedType || 'Select Type'} 
+      
                                                     </Button>
 
                                                     <Popover
                                                         id={`type-popover-${row.id}`}
                                                         open={open}
+                                                        // {Boolean(anchorEl[index])}
+
                                                         anchorEl={anchorEl}
+                                                        // {anchorEl[index]}
                                                         onClose={handleClose}
+                                                        // {()=>handleClose(index)}
                                                         anchorOrigin={{
                                                             vertical: 'bottom',
                                                             horizontal: 'center',
@@ -382,12 +477,13 @@ export default function App() {
                                                                     </Typography>
                                                                 </div> 
 
-                                                                <div key={row.id} style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                                                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                                                                     {filteredTypes.map((type, idx) => (
-                                                                        <Button 
+                                                                        <Button
                                                                             key={idx}
                                                                             onClick={() => handleTypeSelect(type.name, index )}
                                                                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                                                        
                                                                             <div>{type.name}</div>
                                                                             <div style={{ fontSize: '0.6rem', color: 'gray' }}>{type.description}</div>
                                                                             
@@ -398,7 +494,8 @@ export default function App() {
                                                             </Typography>  
                                                         </div> 
                                                     </Popover>
-                                                </FormControl>   
+                                                </FormControl> 
+                                    
                 
 
                                                 {/* Percentage of Blanks Input */}
@@ -429,10 +526,10 @@ export default function App() {
 
 
                                                 {/* Other Options */}
-                                                <div style={{ minWidth: 20, marginLeft: '10px'}}>
+                                                <div style={{ minWidth: 150, marginLeft: '10px'}}>
                                                     {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].selectedType))}
                                                 </div>
-
+                                                     
                                                 {/* Delete Button */}
                                                 {rows.length > 1 && (
                                                     <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
