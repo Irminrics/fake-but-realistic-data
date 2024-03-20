@@ -42,6 +42,9 @@ export default function App() {
 
     const [searchQuery, setSearchQuery] = React.useState('');
 
+    const open = Boolean(anchorEl);
+
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
         setOpen(true);
@@ -51,7 +54,6 @@ export default function App() {
         setAnchorEl(null);
         setOpen(false);
     };
-
 
     const handleTypeSelect = (typeName, rowId) => {
         const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + rowId;
@@ -64,8 +66,6 @@ export default function App() {
  
         handleClose();
     };
-
-    const open = Boolean(anchorEl);
 
     // Filter the basicInputTypes array based on the search query
     const filteredTypes = basicInputTypes.filter(type =>
@@ -185,10 +185,6 @@ export default function App() {
         const encodedUri = encodeURI(csvContent);
         return encodedUri;
     };
-
-
-
-
 
     // Function to handle CSV download
     const handleDownloadCSV = () => {
@@ -342,12 +338,14 @@ export default function App() {
                                                 {/* Popup Selector */}
                                                 <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
                                                     <Button 
-                                                    onClick={(event) => handleClick(event, row.id)} 
+                                                    aria-describedby={row.id}
+                                                    onClick={(event) => handleClick(event, index)} 
+                                                    // row.id
                                                     variant="outlined" 
                                                     sx={{ borderRadius: '15px', border: '1px solid #bfbfbf', width: '220px',height: '55px', display: 'flex', textAlign: 'left', justifyContent: 'flex-start', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: ' hidden',
                                                     color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
                                                 
-                                                    >
+                                                    >   
                                                         {rows[index].selectedType || 'Select Type'}
                                                         
                                                     </Button>
@@ -390,7 +388,6 @@ export default function App() {
                                                                             key={idx}
                                                                             onClick={() => handleTypeSelect(type.name, index )}
                                                                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-
                                                                             <div>{type.name}</div>
                                                                             <div style={{ fontSize: '0.6rem', color: 'gray' }}>{type.description}</div>
                                                                             
