@@ -34,7 +34,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import * as generator from './generator';
 
 export default function App() {
-    const [rows, setRows] = React.useState([{ id: 1, name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
+    const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '50' }]);
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
     const [customListValue, setCustomListValue] = React.useState('random');
@@ -43,28 +43,34 @@ export default function App() {
 
     const [searchQuery, setSearchQuery] = React.useState('');
 
-    const open = Boolean(anchorEl);
+    const [open, setOpen] = React.useState(false);
+    const [datetimeFormatListValue, setDatetimeFormatListValue] = React.useState('DD/MM/YYYY');
+    const [timeFormatListValue, setTimeFormatListValue] = React.useState('h:mm A');
 
-    const handleClick = (event, index) => {
-        setAnchorEl(event.currentTarget);
+    // State hooks for start and end dates
+    const [startDate, setStartDate] = React.useState(null);
+    const [endDate, setEndDate] = React.useState(null);
+
+    // State hooks for start and end time
+    const [startTime, setStartTime] = React.useState(null);
+    const [endTime, setEndTime] = React.useState(null);
+
+    const handleInputSelectionDialogOpen = (event, index) => {
+        setAnchorEl(index);
         setOpen(true);
+    };
+
+
+    const handleTypeSelect = (typeName, index) => {
+        console.log("In handletypeselect" ,typeName, index)
+        const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + index;
+        setRows(prevRows => prevRows.map((r, typeCellIndex) => typeCellIndex === index ? { ...r, type: typeName, name: newName } : r));
+        handleClose(index);
     };
 
     const handleClose = (index) => {
         setAnchorEl(null);
         setOpen(false);
-    };
-
-    const handleTypeSelect = (typeName, rowId) => {
-        const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + rowId;
-
-        setRows(prevRows =>
-            prevRows.map((r, idx)=>
-                idx === rowId ? { ...r, selectedType: typeName, name: newName  } : r
-            )
-        );
- 
-        handleClose();
     };
         
     // Filter the basicInputTypes array based on the search query
@@ -82,18 +88,6 @@ export default function App() {
         }];
         setRows(defaultRows);
     };
-
-    const [datetimeFormatListValue, setDatetimeFormatListValue] = React.useState('DD/MM/YYYY');
-    const [timeFormatListValue, setTimeFormatListValue] = React.useState('h:mm A');
-
-    // State hooks for start and end dates
-    const [startDate, setStartDate] = React.useState(null);
-    const [endDate, setEndDate] = React.useState(null);
-
-    // State hooks for start and end time
-    const [startTime, setStartTime] = React.useState(null);
-    const [endTime, setEndTime] = React.useState(null);
-
 
     const handleAddRow = () => {
         console.log('Adding a new row');
@@ -134,6 +128,7 @@ export default function App() {
         items.splice(result.destination.index, 0, reorderedItem);
         setRows(items);
     };
+
     // CSV Functions
     const convertRowsToCSV = () => {
         let csvContent = "data:text/csv;charset=utf-8,";
@@ -426,30 +421,24 @@ export default function App() {
                                                 />
                     
                                                 <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
-                                                    <Button 
-                                                    // aria-describedby={row.id}
+                                                    <Button
                                                     aria-describedby={`popover-${row.id}`}
-                                                    onClick={(event) => handleClick(event, index)} 
-                                                    // row.id
+                                                    onClick={(event) => handleInputSelectionDialogOpen(event, index)} 
                                                     variant="outlined" 
                                                     sx={{ borderRadius: '15px', border: '1px solid #bfbfbf', width: '220px',height: '55px', display: 'flex', textAlign: 'left', justifyContent: 'flex-start', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: ' hidden',
                                                     color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
                                                 
                                                     >   
                                                         {/* {rows[index].selectedType || 'Select Type'} */}
-                                                        {row.selectedType || 'Select Type'} 
+                                                        {row.type || 'Select Type'} 
       
                                                     </Button>
 
                                                     <Popover
                                                         id={`type-popover-${row.id}`}
-                                                        open={open}
-                                                        // {Boolean(anchorEl[index])}
-
-                                                        anchorEl={anchorEl}
-                                                        // {anchorEl[index]}
+                                                        open={open && anchorEl === index}
+                                                        anchorEl={anchorEl === index? anchorEl : null}
                                                         onClose={handleClose}
-                                                        // {()=>handleClose(index)}
                                                         anchorOrigin={{
                                                             vertical: 'bottom',
                                                             horizontal: 'center',
@@ -527,7 +516,7 @@ export default function App() {
 
                                                 {/* Other Options */}
                                                 <div style={{ minWidth: 150, marginLeft: '10px'}}>
-                                                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].selectedType))}
+                                                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].type))}
                                                 </div>
                                                      
                                                 {/* Delete Button */}
@@ -556,7 +545,6 @@ export default function App() {
             <div style={{ margin: '20px 20px', height: '1.5px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
 
             <div style={{ display: 'flex', alignItems: 'center' }}>
-
                 {/* Number of Rows Input */}
                 <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
                     Number of Rows: 
@@ -590,7 +578,7 @@ export default function App() {
 
                 {/* Generate Data Button with Format Dropdown Picker */}
                 <div style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
-                    <Button variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                    <Button onClick={handleDownloadCSV} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                         Generate
                     </Button>
                 </div>
