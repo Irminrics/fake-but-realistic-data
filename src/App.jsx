@@ -13,7 +13,6 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import AddCircleIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import DragIndicatorOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 
@@ -288,7 +287,7 @@ export default function App() {
                             </LocalizationProvider>;
                         case 'date-time-format-picker':
                             return (
-                                <FormControl key={option} sx={{ minWidth: 120 }}>
+                                <FormControl key={option} sx={{ minWidth: 120, '& .MuiInputBase-root': {borderRadius: '15px' } }}>
                                     <InputLabel id={option}></InputLabel>
                                     <Select
                                         labelId={option}
@@ -330,9 +329,9 @@ export default function App() {
                         case 'decimals-text':
                             return <TextField key={option} id={option} label="Decimals" inputProps={{ type: 'number', min: 0 }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={0} />;
                         case 'mean-text':
-                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
+                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={1}/>;
                         case 'stddev-text':
-                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
+                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={1}/>;
                         case 'time-text':
                             return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
                         case 'start-at-text':
@@ -357,6 +356,8 @@ export default function App() {
                                     <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 120, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={1} />
                                 </>
                             );
+                        case 'lambda-text':
+                            return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }}  />;
                         default:
                             return null;
                     }
@@ -366,17 +367,17 @@ export default function App() {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start', padding: '20px', flexGrow: 1, overflowX: 'hidden', width: '100vw' }}>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'start', padding: '20px', flexGrow: 1, overflowX: 'auto', width: '200vw' }}>
             {/* Header */}
             <Header />
 
             {/* Reset All button */}
-            <div style={{display: 'flex', minWidth: 200, alignItems: 'center', marginBottom: '20px', marginLeft: '700px', marginRight: '20px' }}>
+            <div style={{display: 'flex', minWidth: 200, alignItems: 'center', marginBottom: '20px', marginLeft: '800px', marginRight: '20px' }}>
                 <Button onClick={handleResetAll} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                     Reset All
                 </Button>
             </div>
-
+            
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
                 <div style={{ minWidth: 300, marginLeft: '60px' }}>Field Name</div>
                 <div style={{ minWidth: 220, marginLeft: '10px' }}>Type</div>
@@ -515,7 +516,7 @@ export default function App() {
 
 
                                                 {/* Other Options */}
-                                                <div style={{ minWidth: 150, marginLeft: '10px'}}>
+                                                <div style={{ minWidth: 600, marginLeft: '10px'}}>
                                                     {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].type))}
                                                 </div>
                                                      
@@ -542,9 +543,9 @@ export default function App() {
                 </Button>
             </div>
  
-            <div style={{ margin: '20px 20px', height: '1.5px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
+            <div style={{ margin: '20px 20px', height: '2px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
 
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '100px' }}>
                 {/* Number of Rows Input */}
                 <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
                     Number of Rows: 
