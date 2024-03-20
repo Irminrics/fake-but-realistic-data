@@ -13,7 +13,6 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import AddCircleIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import DragIndicatorOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 
@@ -190,10 +189,6 @@ export default function App() {
         return encodedUri;
     };
 
-
-
-
-
     // Function to handle CSV download
     const handleDownloadCSV = () => {
         const csvContent = convertRowsToCSV();
@@ -314,6 +309,12 @@ export default function App() {
                                     <TextField key={option} id={`${option}-symbol`} label="Min Symbols" inputProps={{ type: 'number', min: 1 }} sx={{ maxWidth: 120, marginRight: '10px' }} defaultValue={1} />
                                 </>
                             );
+                        case 'lambda-text':
+                            return <TextField key={option} id={option} label="λ Value" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={1} />;
+                        case 'stddev-text':
+                            return <TextField key={option} id={option} label="Std Dev" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={1} />;
+                        case 'mean-text':
+                            return <TextField key={option} id={option} label="Mean" inputProps={{ type: 'number' }} sx={{ maxWidth: 150, marginRight: '10px' }} defaultValue={1} />;
                         default:
                             return null;
                     }
