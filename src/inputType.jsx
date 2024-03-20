@@ -35,6 +35,11 @@ export const basicInputTypes = [
         options: ['date-time-picker']
     },
     {
+        name: 'Exponential Distribution',
+        description: 'Picks records randomly or sequentially from a exponential distribution with a specific λ rate',
+        options: ['lambda-text']
+    },
+    {
         name: 'Frequency',
         description: 'Never, Once, Seldom, Often, Daily, Weekly, Monthly, Yearly',
         options: []
@@ -65,6 +70,11 @@ export const basicInputTypes = [
         options: []
     },
     {
+        name: 'Normal Distribution',
+        description: 'Generates random numbers in a normal distribution using the Box-Muller algorithm',
+        options: ['stddev-text', 'decimals-text']
+    },
+    {
         name: 'Number',
         description: '0.25, 5.2, 1000',
         options: ['min-num-text', 'max-num-text', 'decimals-text']
@@ -83,6 +93,11 @@ export const basicInputTypes = [
         name: 'Password Hash',
         description: 'The bcrypt hash of a randomly generated password',
         options: []
+    },
+    {
+        name: 'Poisson Distribution',
+        description: 'Generates numbers based on a Poisson distribution with a specific mean value',
+        options: ['mean-text']
     },
     {
         name: 'Row Number',
