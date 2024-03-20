@@ -14,8 +14,23 @@ import Select from '@mui/material/Select';
 import AddCircleIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import DragIndicatorOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined';
+import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -31,7 +46,7 @@ export default function App() {
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
     const [openCustomListWeightedForm, setOpenCustomListWeightedForm] = React.useState(false);
-    const [customListValue, setCustomListValue] = React.useState('random');
+    const [customList, setCustomList] = React.useState('random');
 
     const [datetimeFormatListValue, setDatetimeFormatListValue] = React.useState('DD/MM/YYYY');
     const [timeFormatListValue, setTimeFormatListValue] = React.useState('h:mm A');
@@ -62,8 +77,10 @@ export default function App() {
         setFormat(event.target.value);
     };
 
-    const handleCustomListChange = (event) => {
-        setCustomListValue(event.target.value);
+    const handleCustomListChange = (e) => {
+        const value = e.target.value;
+        const elements = value.split(',').map(item => item.trim());
+        setCustomList(elements);
     };
 
     const handleDatetimeFormatListChange = (event) => {
@@ -215,7 +232,7 @@ export default function App() {
                         case 'max-num-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px' }} defaultValue={100} />;
                         case 'custom-list-text':
-                            return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Custom List" placeholder="Item1, Item2, Item3" sx={{ minWidth: 350, marginRight: '10px' }} />;
+                            return <TextField onChange={handleCustomListChange} key={`${option}-${index}`} id={`${option}-${index}`} label="Custom List" placeholder="Item1, Item2, Item3" sx={{ minWidth: 350, marginRight: '10px' }} />;
                         case 'success-probability-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px' }} />;
                         case 'custom-list-dropdown':
@@ -334,9 +351,47 @@ export default function App() {
                 {selectedCustomListType.options.map(option => {
                     switch (option) {
                         case 'weighted':
-                            return <Button variant="outlined" onClick={handleCustomListWeightedFormOpen}>
-                                Set Weights
-                            </Button>
+                            return (
+                                <>
+                                    <Button variant="outlined" onClick={handleCustomListWeightedFormOpen}>
+                                        Set Weights
+                                    </Button>
+                                    <Dialog
+                                        open={openCustomListWeightedForm}
+                                        onClose={handleCustomListWeightedFormClose}
+                                    >
+                                        <DialogTitle>Weight Distribution</DialogTitle>
+                                        <DialogContent>
+                                            <DialogContentText>
+                                                Set the weights of each element in your custom list.
+                                            </DialogContentText>
+                                            <TableContainer>
+                                                <Table>
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Element</TableCell>
+                                                            <TableCell>Weight</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {customList.map((element, index) => (
+                                                            <TableRow key={index}>
+                                                                <TableCell>{element}</TableCell>
+                                                                <TableCell>
+                                                                    <TextField type="number" />
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button onClick={handleCustomListWeightedFormClose}>Close</Button>
+                                        </DialogActions>
+                                    </Dialog>
+                                </>
+                            );
                         case 'dynamic':
                             return <Button variant="outlined" onClick={handleCustomListWeightedFormOpen}>
                                 Set Custom Distribution
