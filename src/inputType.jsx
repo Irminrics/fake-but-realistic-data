@@ -25,11 +25,6 @@ export const basicInputTypes = [
         options: ['custom-list-text', 'custom-list-dropdown']
     },
     {
-        name: 'Dataset Column',
-        description: 'Pick records randomly or sequentially from one of my datasets',
-        options: []
-    },
-    {
         name: 'Datetime',
         description: '13/03/2024 3.13.2024 13-Mar-2024',
         options: ['date-time-picker', 'date-time-format-picker']
