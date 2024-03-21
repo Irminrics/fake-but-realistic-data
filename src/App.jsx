@@ -190,7 +190,7 @@ export default function App() {
                 } else if (type === 'GUID') {
                     return generator.generateRandomGUID();
                 } else if (type === 'Hex Colour') {
-                    return '#' + generator.generateRandomHexColor();
+                    return generator.generateRandomHexColor();
                 } else if (type === 'ISBN') {
                     return generator.generateRandomISBN();
                 } else if (type === 'MongoDB ObjectID') {
