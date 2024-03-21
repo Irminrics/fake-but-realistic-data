@@ -53,7 +53,7 @@ export default function App() {
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
     const [openCustomListWeightedForm, setOpenCustomListWeightedForm] = React.useState(false);
-    const [customList, setCustomList] = React.useState('random');
+    const [customList, setCustomList] = React.useState('');
 
     const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -125,7 +125,7 @@ export default function App() {
 
     const handleCustomListChange = (e) => {
         const value = e.target.value;
-        const elements = value.split(',').map(item => item.trim());
+        const elements = value.split(',').map(item => item.trim()).filter(item => item !== '');
         setCustomList(elements);
     };
 
@@ -279,7 +279,7 @@ export default function App() {
                         case 'max-num-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Max Number" inputProps={{ type: 'number' }} sx={{ marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} defaultValue={100} />;
                         case 'custom-list-text':
-                            return <TextField onChange={handleCustomListChange} key={`${option}-${index}`} id={`${option}-${index}`} label="Custom List" placeholder="Item1, Item2, Item3" sx={{ minWidth: 350, marginRight: '10px' }} />;
+                            return <TextField onChange={handleCustomListChange} key={`${option}-${index}`} id={`${option}-${index}`} label="Custom List" placeholder="Item1, Item2, Item3" sx={{ minWidth: 350, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' }}} />;
                         case 'success-probability-text':
                             return <TextField key={`${option}-${index}`} id={`${option}-${index}`} label="Success Probability" inputProps={{ type: 'number' }} sx={{ maxWidth: 200, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }} />;
                         case 'custom-list-dropdown':
@@ -402,7 +402,7 @@ export default function App() {
                         case 'weighted':
                             return (
                                 <>
-                                    <Button variant="outlined" onClick={handleCustomListWeightedFormOpen}>
+                                    <Button variant="outlined" onClick={handleCustomListWeightedFormOpen} sx={{ '& .MuiInputBase-root': {borderRadius: '15px' } }}>
                                         Set Weights
                                     </Button>
                                     <Dialog
@@ -410,33 +410,40 @@ export default function App() {
                                         onClose={handleCustomListWeightedFormClose}
                                     >
                                         <DialogTitle>Weight Distribution</DialogTitle>
-                                        <DialogContent>
-                                            <DialogContentText>
-                                                Set the weights of each element in your custom list.
-                                            </DialogContentText>
-                                            <TableContainer>
-                                                <Table>
-                                                    <TableHead>
-                                                        <TableRow>
-                                                            <TableCell>Element</TableCell>
-                                                            <TableCell>Weight</TableCell>
-                                                        </TableRow>
-                                                    </TableHead>
-                                                    <TableBody>
-                                                        {customList.map((element, index) => (
-                                                            <TableRow key={index}>
-                                                                <TableCell>{element}</TableCell>
-                                                                <TableCell>
-                                                                    <TextField type="number" />
-                                                                </TableCell>
+                                            <DialogContent>
+                                                {customList === null || customList.length === 0 ? (
+                                                    <Typography variant="body1">Key in your custom list to modify the weights</Typography>
+                                                ) : (
+                                                    <>
+                                                <DialogContentText>
+                                                    Set the weights of each element in your custom list.
+                                                </DialogContentText>
+                                                <TableContainer>
+                                                    <Table>
+                                                        <TableHead>
+                                                            <TableRow>
+                                                                <TableCell>Element</TableCell>
+                                                                <TableCell>Weight</TableCell>
                                                             </TableRow>
-                                                        ))}
-                                                    </TableBody>
-                                                </Table>
-                                            </TableContainer>
-                                        </DialogContent>
+                                                        </TableHead>
+                                                        <TableBody>
+                                                            {customList.map((element, index) => (
+                                                                <TableRow key={index}>
+                                                                    <TableCell>{element}</TableCell>
+                                                                    <TableCell>
+                                                                        <TextField type="number" sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }}/>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))}
+                                                        </TableBody>
+                                                    </Table>
+                                                </TableContainer>
+
+                                                    </>
+                                                )}
+                                            </DialogContent>
                                         <DialogActions>
-                                            <Button onClick={handleCustomListWeightedFormClose}>Close</Button>
+                                            <Button onClick={handleCustomListWeightedFormClose}>Save & Close</Button>
                                         </DialogActions>
                                     </Dialog>
                                 </>
@@ -526,7 +533,6 @@ export default function App() {
                                                     color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
                                                 
                                                     >   
-                                                        {/* {rows[index].selectedType || 'Select Type'} */}
                                                         {row.type || 'Select Type'} 
       
                                                     </Button>
@@ -582,8 +588,6 @@ export default function App() {
                                                     </Popover>
                                                 </FormControl> 
                                     
-                
-
                                                 {/* Percentage of Blanks Input */}
                                                 <TextField
                                                     sx={{ minWidth: 100, width: 100, marginLeft: '10px' }}
@@ -610,9 +614,7 @@ export default function App() {
                                                     placeholder="0"
                                                 />
 
-
                                                 {/* Other Options */}
-
                                                 <div style={{ minWidth: 650, marginLeft: '10px' }}>
                                                     {renderInputFields(basicInputTypes.find(inputType => inputType.name == row.type), row, index)}
                                                     {row.type == 'Custom List' && 
