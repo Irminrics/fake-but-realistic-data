@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 
 import Header from './components/Header';
 import { basicInputTypes } from './inputType';
@@ -29,6 +30,9 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { TypeSpecimen } from '@mui/icons-material';
 import IconButton from "@mui/material/IconButton";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import Switch from '@mui/material/Switch';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import * as generator from './generator';
 
@@ -43,6 +47,16 @@ export default function App() {
     const [searchQuery, setSearchQuery] = React.useState('');
 
     const [open, setOpen] = React.useState(false);
+
+    const [checkedStates, setCheckedStates] = useState([true]); // Assuming initial state is true for defaultChecked
+
+    const handleChange = (index) => (event) => {
+        const newCheckedStates = [...checkedStates];
+        newCheckedStates[index] = event.target.checked;
+        setCheckedStates(newCheckedStates);
+    };
+
+
     const [datetimeFormatListValue, setDatetimeFormatListValue] = React.useState('DD/MM/YYYY');
     const [timeFormatListValue, setTimeFormatListValue] = React.useState('h:mm A');
 
@@ -382,7 +396,8 @@ export default function App() {
                 <div style={{ minWidth: 300, marginLeft: '60px' }}>Field Name</div>
                 <div style={{ minWidth: 220, marginLeft: '10px' }}>Type</div>
                 <div style={{ minWidth: 100, width: 100, marginLeft: '10px' }}>Blanks</div>
-                <div style={{ minWidth: 650, marginLeft: '10px' }}>Other Options</div>
+                <div style={{ minWidth: 600, marginLeft: '10px' }}>Other Options</div>
+                <div style={{ minWidth: 0, marginLeft: '10px' }}>Primary Key</div>
             </div>
             <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="rows">
@@ -430,7 +445,6 @@ export default function App() {
                                                     color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
                                                 
                                                     >   
-                                                        {/* {rows[index].selectedType || 'Select Type'} */}
                                                         {row.type || 'Select Type'} 
       
                                                     </Button>
@@ -519,7 +533,19 @@ export default function App() {
                                                 <div style={{ minWidth: 600, marginLeft: '10px'}}>
                                                     {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].type))}
                                                 </div>
-                                                     
+
+                                                {/* Primary key switch */}
+                                                <div key={index}>
+                                                    <FormGroup style={{ minWidth: 150, marginLeft: '20px'}}>
+                                                        <FormControlLabel
+                                                            control={<Switch defaultChecked={checkedStates[index]} onChange={handleChange(index)} />}
+                                                            label={checkedStates[index] ? 'PK' : 'Not PK'}
+                                                        />
+                                                    </FormGroup>
+                                                </div>
+
+
+
                                                 {/* Delete Button */}
                                                 {rows.length > 1 && (
                                                     <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
