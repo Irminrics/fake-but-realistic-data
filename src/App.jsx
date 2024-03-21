@@ -13,9 +13,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import AddCircleIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import DragIndicatorOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined';
 import Dialog from '@mui/material/Dialog';
-import Divider from '@mui/material/Divider';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -23,14 +21,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
@@ -42,7 +37,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { TypeSpecimen } from '@mui/icons-material';
 import IconButton from "@mui/material/IconButton";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
@@ -53,9 +47,10 @@ export default function App() {
     const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
     const [openCustomListWeightedForm, setOpenCustomListWeightedForm] = React.useState(false);
+    const [openCustomListDynamicForm, setOpenCustomListDynamicForm] = React.useState(false);
     const [customList, setCustomList] = React.useState('');
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = React.useState(-1);
 
     const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -85,7 +80,7 @@ export default function App() {
     };
 
     const handleClose = (index) => {
-        setAnchorEl(null);
+        setAnchorEl(-1);
         setOpen(false);
     };
         
@@ -168,10 +163,11 @@ export default function App() {
             sequence = generator.generateSequence(startAt, step, repeat, restartAt, numberOfRowsInOutput);
         }
 
-        
         // Repeat types based on numberOfRowsInOutput
         for (let i = 0; i < numberOfRowsInOutput; i++) {
             const rowData = types.map((type, index) => {
+                console.log("type: index, ", type, index)
+                
                 if (type === 'Row Number') {
                     // If type is row number, print the row number
                     return i + 1;
@@ -199,7 +195,7 @@ export default function App() {
                 } else if (type === 'MongoDB ObjectID') {
                     return generator.generateRandomMongoDBObjectId();
                 } else if (type === 'Nato Phonetic') {
-                    const min = parseFloat(document.getElementById(`at-least-text`).value) || 3;
+                    const min = parseFloat(document.getElementById(`at-least-text-${index}`).value) || 3;
                     const max = parseFloat(document.getElementById(`at-most-text`).value) || 10;
                     return generator.generateRandomNatoPhonetics(min, max);
                 } else if (type === 'Number') {
@@ -402,56 +398,111 @@ export default function App() {
                         case 'weighted':
                             return (
                                 <>
-                                    <Button variant="outlined" onClick={handleCustomListWeightedFormOpen} sx={{ '& .MuiInputBase-root': {borderRadius: '15px' } }}>
-                                        Set Weights
-                                    </Button>
-                                    <Dialog
-                                        open={openCustomListWeightedForm}
-                                        onClose={handleCustomListWeightedFormClose}
-                                    >
-                                        <DialogTitle>Weight Distribution</DialogTitle>
-                                            <DialogContent>
-                                                {customList === null || customList.length === 0 ? (
-                                                    <Typography variant="body1">Key in your custom list to modify the weights</Typography>
-                                                ) : (
-                                                    <>
-                                                <DialogContentText>
-                                                    Set the weights of each element in your custom list.
-                                                </DialogContentText>
-                                                <TableContainer>
-                                                    <Table>
-                                                        <TableHead>
-                                                            <TableRow>
-                                                                <TableCell>Element</TableCell>
-                                                                <TableCell>Weight</TableCell>
+                                <Button key={`${option}-${index}`} variant="outlined" onClick={handleCustomListWeightedFormOpen} sx={{ '& .MuiInputBase-root': {borderRadius: '15px' } }}>
+                                    Set Weights
+                                </Button>
+                                <Dialog
+                                    open={openCustomListWeightedForm}
+                                    onClose={handleCustomListWeightedFormClose}
+                                >
+                                    <DialogTitle>Weight Distribution</DialogTitle>
+                                        <DialogContent>
+                                            {customList.length === 0 ? (
+                                                <Typography variant="body1">Key in your custom list to modify the weights</Typography>
+                                            ) : (
+                                                <>
+                                            <DialogContentText>
+                                                Set the weights of each element in your custom list.
+                                            </DialogContentText>
+                                            <TableContainer>
+                                                <Table>
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Element</TableCell>
+                                                            <TableCell>Weight</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {customList.map((element, index) => (
+                                                            <TableRow key={index}>
+                                                                <TableCell>{element}</TableCell>
+                                                                <TableCell>
+                                                                    <TextField type="number" sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }}/>
+                                                                </TableCell>
                                                             </TableRow>
-                                                        </TableHead>
-                                                        <TableBody>
-                                                            {customList.map((element, index) => (
-                                                                <TableRow key={index}>
-                                                                    <TableCell>{element}</TableCell>
-                                                                    <TableCell>
-                                                                        <TextField type="number" sx={{ maxWidth: 150, marginRight: '10px', '& .MuiInputBase-root': {borderRadius: '15px' } }}/>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            ))}
-                                                        </TableBody>
-                                                    </Table>
-                                                </TableContainer>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
 
-                                                    </>
-                                                )}
-                                            </DialogContent>
-                                        <DialogActions>
-                                            <Button onClick={handleCustomListWeightedFormClose}>Save & Close</Button>
-                                        </DialogActions>
-                                    </Dialog>
+                                                </>
+                                            )}
+                                        </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleCustomListWeightedFormClose}>Save & Close</Button>
+                                    </DialogActions>
+                                </Dialog>
                                 </>
                             );
                         case 'dynamic':
-                            return <Button variant="outlined" onClick={handleCustomListWeightedFormOpen}>
+                            return (
+                            <>
+                            <Button key={`${option}-${index}`} variant="outlined" onClick={handleCustomListDynamicFormOpen}>
                                 Set Custom Distribution
                             </Button>
+                            <Dialog
+                            open={openCustomListDynamicForm}
+                            onClose={handleCustomListDynamicFormClose}
+                            maxWidth={'xl'}
+                            >
+                            <DialogTitle>Custom Distribution</DialogTitle>
+                                <DialogContent>
+                                    {customList.length === 0 ? (
+                                        <Typography variant="body1">Key in your custom list to modify the custom distribution</Typography>
+                                    ) : (
+                                    <>
+                                        <DialogContentText>
+                                            <ol>
+                                                <li>Add rules to create a custom distribution. Each rule must evaluate to true or false.</li>
+                                                <li>Each number in the table below represents how often that value will occur relative to other values. </li>
+                                                <li>A value with "2" will occur twice as often as a value with "1". </li>
+                                                <li>All values are assigned a "1" when no rules are matched. </li>
+                                                <li>Rules are evaluated in the order in which they are defined until a matching rule is found. </li>
+                                                <li>If a rule is blank, it will match all values.</li>
+                                            </ol>
+                                        </DialogContentText>
+                                        <TableContainer>
+                                            <Table>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell></TableCell>
+                                                        <TableCell>Rule</TableCell>
+                                                        {customList.map((element, index) => (
+                                                            <TableCell>{element}</TableCell>
+                                                        ))}
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    <TableRow key={index}>
+                                                        <TableCell>icons</TableCell>
+                                                        {customList.map(() => (
+                                                            <TableCell>
+                                                                <TextField type="number" sx={{ '& .MuiInputBase-root': {borderRadius: '15px' } }}/>
+                                                            </TableCell>
+                                                        ))}
+                                                    </TableRow>
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    </>
+                                    )}
+                                </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleCustomListDynamicFormClose}>Save & Close</Button>
+                            </DialogActions>
+                            </Dialog>
+                        </>
+                        );
                         default:
                             break;
                     }
@@ -466,6 +517,14 @@ export default function App() {
 
     const handleCustomListWeightedFormClose = () => {
         setOpenCustomListWeightedForm(false);
+      };
+
+      const handleCustomListDynamicFormOpen = () => {
+        setOpenCustomListDynamicForm(true);
+    };
+
+    const handleCustomListDynamicFormClose = () => {
+        setOpenCustomListDynamicForm(false);
       };
     
 
