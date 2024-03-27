@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Header from './components/Header';
 import { basicInputTypes } from './inputType';
@@ -27,7 +27,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { TypeSpecimen } from '@mui/icons-material';
+import { CropTwoTone, TypeSpecimen } from '@mui/icons-material';
 import IconButton from "@mui/material/IconButton";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import Switch from '@mui/material/Switch';
@@ -42,19 +42,20 @@ export default function App() {
     const [format, setFormat] = React.useState('CSV');
     const [customListValue, setCustomListValue] = React.useState('random');
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    // const [anchorEl, setAnchorEl] = React.useState(null);
+    // Example of state initialization
+    const [anchorEl, setAnchorEl] = useState({ el: null, tableIndex: null, rowIndex: null });
+
 
     const [searchQuery, setSearchQuery] = React.useState('');
 
     const [open, setOpen] = React.useState(false);
 
-    const [checkedStates, setCheckedStates] = useState([true]); // Assuming initial state is true for defaultChecked
-
     const [tableName, setTableName] = useState(['Table_0']);
 
-    const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '50'}]}]);
+    const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '50', PK: false}]}]);
 
-    const handleTableNameChange = (event) => {
+    const handleTableNameChange = (event, tableIndex) => {
         const newTableName = event.target.value;
         // setTableName(newTableName);
         setTables(prevTables => {
@@ -68,18 +69,19 @@ export default function App() {
     const handleAddTable = () => {
         console.log('Adding a new table');
         const newTable = {
-            id: '${tables.length}',
-            tableName: `Table ${tables.length}`,
-            rows: [{ id: 1, name: 'row_number_0', type: 'Row Number', blanks: '50' }] // Default initial row
+            id: tables.length,
+            tableName: `Table_${tables.length}`,
+            rows: [{ id: 0, name: 'row_number_10', type: 'Row Number', blanks: '50', PK: false }]
         };
         setTables(prevTables => [...prevTables, newTable]);
         
-        // Log each table along with its rows
-        tables.forEach((table, index) => {
-            console.log(`Table ${index}:`, table);
-        });
+        console.log("All Tables:", tables);
     };
 
+    // useEffect hook to log 'tables' state on update
+    useEffect(() => {
+        console.log("All Tables:", tables);
+    }, [tables]);
 
     const handleDeleteTable = (tableIndex) => {
         setTables(prevTables => {
@@ -91,62 +93,53 @@ export default function App() {
 
 
     const handleAddRow = (tableIndex) => {
+        console.log(tableIndex);
         console.log('Adding a new row');
         const newRow = {
-            id: tables[tableIndex].rows.length + 1, 
-            name: `row_number_${rows.length}`,
+            id: tables[tableIndex].rows.length, 
+            name: `row_number_${tables[tableIndex].rows.length}`,
             type: 'Row Number',
-            blanks: '50'
+            blanks: '50',
+            PK: false
         };
-        setRows(prevRows => [...prevRows, newRow]);
+        // setRows(prevRows => [...prevRows, newRow]);
         setTables(prevTables => {
             const updatedTables = [...prevTables];
             updatedTables[tableIndex].rows = [...updatedTables[tableIndex].rows, newRow];
             return updatedTables;
         });
 
-        // console.log("Table Row:", newRow);
-        // console.log("Table Rows:");
-        //     tables.forEach((table, index) => {
-        //         console.log(`Table ${index} Rows:`, table);
-        // });
-        // Log all tables
         console.log("All Tables:", tables);
     };
 
-    // const handleAddRow = (tableIndex) => {
-    //     console.log('Adding a new row');
-    //     const newRow = {
-    //         name: `row_number_${rows.length}`,
-    //         type: 'Row Number',
-    //         blanks: '50'
-    //     };
-    //     setRows(prevRows => [...prevRows, newRow]);
-
-    //     console.log("Table Row:", newRow);
-    // };
-
-
-    // const handleDeleteRow = (indexToDelete) => {
-    //     setRows(prevRows => prevRows.filter((row, index) => index !== indexToDelete));
-    // };
-
-    const handleDeleteRow = (tableIndex, rowIndex) => {
-        setTables(prevTables => {
-            const updatedTables = [...prevTables];
-            updatedTables[tableIndex].rows.splice(rowIndex, 1); // Remove the row at the specified index
-            return updatedTables;
-        });
-        // console.log("Delete Row:", table[tableIndex]);
-        console.log("All Tables:", tables);
+    const handleDeleteRow = (tableIndex, rowIndexToDelete) => {
+        setTables(prevTables => prevTables.map((table, idx) => {
+            if (idx === tableIndex) {
+                // This is the table from which we want to delete a row
+                const updatedRows = table.rows.filter((_, rowIndex) => rowIndex !== rowIndexToDelete);
+                return { ...table, rows: updatedRows };
+            }
+            return table; // For other tables, return them as they are
+        }));
     };
 
-    const handleChange = (index) => (event) => {
-        const newCheckedStates = [...checkedStates];
-        newCheckedStates[index] = event.target.checked;
-        setCheckedStates(newCheckedStates);
+    const handlePKChange = (tableIndex, rowIndex) => (event) => {
+        setTables(prevTables => prevTables.map((table, tIdx) => {
+            if (tIdx === tableIndex) {
+                // Found the targeted table
+                const updatedRows = table.rows.map((row, rIdx) => {
+                    if (rIdx === rowIndex) {
+                        // This is the row we want to update
+                        return { ...row, PK: event.target.checked };
+                    }
+                    return row; // Leave other rows unchanged
+                });
+                return { ...table, rows: updatedRows }; // Return the updated table
+            }
+            return table; // Leave other tables unchanged
+        }));
     };
-
+    
 
     const [datetimeFormatListValue, setDatetimeFormatListValue] = React.useState('DD/MM/YYYY');
     const [timeFormatListValue, setTimeFormatListValue] = React.useState('h:mm A');
@@ -159,60 +152,97 @@ export default function App() {
     const [startTime, setStartTime] = React.useState(null);
     const [endTime, setEndTime] = React.useState(null);
 
-    const handleInputSelectionDialogOpen = (event, index) => {
-        setAnchorEl(index);
+    const handleInputSelectionDialogOpen = (event, tableIndex, index) => {
+        console.log("handleInputSelectionDialogOpen called for row", tableIndex, index);
+        // setAnchorEl(index);
+        setAnchorEl({ el: event.currentTarget, tableIndex: tableIndex, rowIndex: index });
         setOpen(true);
-        console.log("Row Object:", row);
     };
 
-
-    const handleTypeSelect = (typeName, index) => {
-        console.log("In handletypeselect" ,typeName, index)
-        const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + index;
-        setRows(prevRows => prevRows.map((r, typeCellIndex) => typeCellIndex === index ? { ...r, type: typeName, name: newName } : r));
-        handleClose(index);
+    const handleTypeSelect = (typeName, tableIndex, rowIndex) => {
+        console.log("In handleTypeSelect", typeName, tableIndex, rowIndex);
+        const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + rowIndex;
+    
+        setTables(prevTables => prevTables.map((table, currentTableIndex) => {
+            if (currentTableIndex === tableIndex) {
+                // Found the target table, now update the specific row
+                const updatedRows = table.rows.map((row, currentRowIndex) => {
+                    if (currentRowIndex === rowIndex) {
+                        // This is the row we want to update
+                        return { ...row, type: typeName, name: newName };
+                    }
+                    return row; // Return unmodified rows
+                });
+    
+                return { ...table, rows: updatedRows }; // Return the updated table
+            }
+            return table; // Return unmodified tables
+        }));
+    
+        handleClose(tableIndex, rowIndex); // Assuming handleClose can also handle tableIndex and rowIndex
     };
+    
 
-    const handleClose = (index) => {
-        setAnchorEl(null);
+
+    // const handleTypeSelect = (typeName, index) => {
+    //     console.log("In handletypeselect" ,typeName, index)
+    //     const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + index;
+    //     setRows(prevRows => prevRows.map((r, typeCellIndex) => typeCellIndex === index ? { ...r, type: typeName, name: newName } : r));
+    //     handleClose(index);
+    // };
+
+
+    // const handleClose = (index) => {
+    //     setAnchorEl(null);
+    //     setOpen(false);
+    // };
+    const handleClose = () => {
         setOpen(false);
+        setAnchorElInfo({ el: null, tableIndex: null, rowIndex: null }); // Reset
     };
+    
         
     // Filter the basicInputTypes array based on the search query
     const filteredTypes = basicInputTypes.filter(type =>
         type.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Function to handle reset all
-    const handleResetAll = () => {
-        // Set rows to default
+    const handleResetAll = (tableIndex) => {
+        // Define default rows to reset to
         const defaultRows = [{
+            id: 0, // Assuming each row has a unique ID, include it here
             name: 'row_number_0',
             type: 'Row Number',
             blanks: '50'
         }];
-        setRows(defaultRows);
+    
+        setTables(prevTables => prevTables.map((table, idx) => {
+            if (idx === tableIndex) {
+                // Reset the rows of the table at tableIndex to defaultRows
+                return { ...table, rows: defaultRows };
+            }
+            return table; // Leave other tables unchanged
+        }));
     };
 
-    // const handleResetAllTable = () => {
-    //     // Set rows to default
-    //     const defaultRows = [{
-    //         name: 'row_number_0',
-    //         type: 'Row Number',
-    //         blanks: '50'
-    //     }];
-    //     // setRows(defaultRows);
-    //     // Map over the tables array and reset each table's rows to default
-    //     const resetTables = tables.map(table => ({
-    //         ...table,
-    //         tableName: 'Table_0',
-    //         rows: [defaultRows] // Set rows to contain only the default row
-    //     }));
-
-    //     // Update the state with the reset tables
-    //     setTables(resetTables);
-    // };
-
+    const handleResetAllTable = () => {
+        // Define default rows to reset to
+        const defaultTables = {
+            id: 0, // Assuming each row has a unique ID, include it here
+            tableName: 'Table_0',
+            rows:[{
+                id: 0,
+                name: 'row_number_0',
+                type: 'Row Number',
+                blanks: '50'
+            }]
+            
+        };
+    
+        // Set the state to an array containing just the default table
+        setTables([defaultTables]);
+    };
+    
     const handleFormatChange = (event) => {
         setFormat(event.target.value);
     };
@@ -230,13 +260,27 @@ export default function App() {
     };
 
 
-    const handleDragEnd = (result) => {
+    // const handleDragEnd = (result) => {
+    //     if (!result.destination) return;
+    //     const items = Array.from(rows);
+    //     const [reorderedItem] = items.splice(result.source.index, 1);
+    //     items.splice(result.destination.index, 0, reorderedItem);
+    //     setRows(items);
+    // };
+    const handleDragEnd = (result, tableIndex) => {
         if (!result.destination) return;
-        const items = Array.from(rows);
-        const [reorderedItem] = items.splice(result.source.index, 1);
-        items.splice(result.destination.index, 0, reorderedItem);
-        setRows(items);
+        setTables(prevTables => prevTables.map((table, idx) => {
+            if (idx === tableIndex) {
+                const items = Array.from(table.rows);
+                const [reorderedItem] = items.splice(result.source.index, 1);
+                items.splice(result.destination.index, 0, reorderedItem);
+                return { ...table, rows: items.map((item, index) => ({ ...item, id: index })) }; // Example of reassigning IDs
+            }
+            return table;
+        }));
     };
+    
+    
 
     // CSV Functions
     const convertRowsToCSV = (TableName) => {
@@ -484,7 +528,7 @@ export default function App() {
 
             {/* Reset All button */}
             <div style={{display: 'flex', minWidth: 200, alignItems: 'center', marginBottom: '20px', marginLeft: '800px', marginRight: '20px' }}>
-                <Button onClick={handleResetAll} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                <Button onClick={handleResetAllTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                     Reset All Tables
                 </Button>
             </div>
@@ -508,12 +552,12 @@ export default function App() {
 
                     {/* <div style={{ minWidth: 50, marginLeft: '10px' }}> {tableName.name} </div> */}
                     {tables.length > 1 && (
-                        <Button onClick={handleDeleteTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '5px', marginRight: '40px' }}>
+                        <Button onClick={()=>handleDeleteTable(tableIndex)} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '5px', marginRight: '40px' }}>
                             Delete Table
                         </Button>
                     )}
                     
-                    <Button onClick={handleResetAll} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                    <Button onClick={()=>handleResetAll(tableIndex)} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                         Reset All Rows
                     </Button>
           
@@ -527,12 +571,12 @@ export default function App() {
                 <div style={{ minWidth: 0, marginLeft: '10px' }}>Primary Key</div>
             </div>
             
-            <DragDropContext onDragEnd={handleDragEnd}>
+            <DragDropContext onDragEnd={(result) => handleDragEnd(result, tableIndex)}>
                 <Droppable droppableId="rows">
                     {(provided) => (
                         <div {...provided.droppableProps} ref={provided.innerRef}>
                             {table.rows.map((row, index) => (
-                                <Draggable key={index} draggableId={index.toString()} index={index}>
+                                <Draggable key={row.id} draggableId={index.toString()} index={index}>
                                     {(provided) => (
                                         <div
                                             {...provided.draggableProps}
@@ -556,33 +600,47 @@ export default function App() {
                                                     value={row.name}
                                                     onChange={(e) => {
                                                         const newName = e.target.value;
-                                                        setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, name: newName } : r));
+                                                        setTables(prevTables => prevTables.map((table, tIdx) => {
+                                                            if (tIdx === tableIndex) { // Check if this is the table we want to update
+                                                                // Now update the specific row within this table
+                                                                const updatedRows = table.rows.map((r, rIdx) => {
+                                                                    if (rIdx === index) { // Find the specific row by index
+                                                                        return { ...r, name: newName }; // Update the name of this row
+                                                                    }
+                                                                    return r; // Leave other rows unchanged
+                                                                });
+                                                                return { ...table, rows: updatedRows }; // Return the updated table with modified rows
+                                                            }
+                                                            return table; // Leave other tables unchanged
+                                                        }));
                                                     }}
                                                     variant="outlined"
                                                     InputProps={{
                                                         style: { borderRadius: '15px' }
                                                     }}
                                                 />
+
                     
                                                 <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
                                                     <Button
-                                                    aria-describedby={`popover-${row.id}`}
-                                                    onClick={(event) => handleInputSelectionDialogOpen(event, index)} 
+                                                    aria-describedby={`popover-${tableIndex}-${index}`} 
+                                                    onClick={(event) => handleInputSelectionDialogOpen(event, tableIndex, index)} 
                                                     variant="outlined" 
                                                     sx={{ borderRadius: '15px', border: '1px solid #bfbfbf', width: '220px',height: '55px', display: 'flex', textAlign: 'left', justifyContent: 'flex-start', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: ' hidden',
                                                     color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
                                                 
                                                     >   
-                                                        
-
                                                         {row.type || 'Select Type'} 
       
                                                     </Button>
 
                                                     <Popover
-                                                        id={`type-popover-${row.id}`}
-                                                        open={open && anchorEl === index}
-                                                        anchorEl={anchorEl === index? anchorEl : null}
+                                                        id={`popover-${tableIndex}-${index}`}
+                                                        // open={open && anchorEl === index}
+                                                        // anchorEl={anchorEl === index? anchorEl : null}
+                                                        // onClose={handleClose}
+                                                        open={open && anchorEl.tableIndex === tableIndex && anchorEl.rowIndex === index}
+                                                        anchorEl={anchorEl.el}
                                                         onClose={handleClose}
                                                         anchorOrigin={{
                                                             vertical: 'bottom',
@@ -615,7 +673,7 @@ export default function App() {
                                                                     {filteredTypes.map((type, idx) => (
                                                                         <Button
                                                                             key={idx}
-                                                                            onClick={() => handleTypeSelect(type.name, index )}
+                                                                            onClick={() => handleTypeSelect(type.name, tableIndex, index )}
                                                                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                                                                         
                                                                             <div>{type.name}</div>
@@ -642,43 +700,50 @@ export default function App() {
                                                         if (newBlanks !== '0') {
                                                             newBlanks = newBlanks.replace(/^0+/, '');
                                                         }
-                                                        // Convert negative numbers to "0"
-                                                        if (newBlanks === '' || newBlanks === '-' || /^\d+$/.test(newBlanks)) {
-                                                            if (/^\d*$/.test(newBlanks) && newBlanks >= 0 && newBlanks <= 100) {
-                                                                setRows(prevRows => prevRows.map((r, idx) => idx === index ? { ...r, blanks: newBlanks } : r));
-                                                            }
+                                                        // Only allow numbers, empty input, or '-' for the input process, and ensure within range 0-100
+                                                        if (newBlanks === '' || newBlanks === '-' || (/^\d+$/.test(newBlanks) && parseInt(newBlanks, 10) >= 0 && parseInt(newBlanks, 10) <= 100)) {
+                                                            setTables(prevTables => prevTables.map((table, tIdx) => {
+                                                                if (tIdx === tableIndex) {
+                                                                    // This is the table we're updating
+                                                                    const updatedRows = table.rows.map((r, rIdx) => {
+                                                                        if (rIdx === index) {
+                                                                            // This is the row we want to update
+                                                                            return { ...r, blanks: newBlanks };
+                                                                        }
+                                                                        return r; // Other rows remain unchanged
+                                                                    });
+                                                                    return { ...table, rows: updatedRows };
+                                                                }
+                                                                return table; // Other tables remain unchanged
+                                                            }));
                                                         }
                                                     }}
                                                     label=""
                                                     InputProps={{
-                                                        type: 'text', // Used text here to allow manipulation before converting to number
+                                                        type: 'text', // Keep as text to handle input manipulation
                                                         endAdornment: '%',
-                                                        style: { borderRadius: '15px'}
+                                                        style: { borderRadius: '15px' }
                                                     }}
                                                     placeholder="0"
                                                 />
 
-
                                                 {/* Other Options */}
                                                 <div style={{ minWidth: 600, marginLeft: '10px'}}>
-                                                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === rows[index].type))}
+                                                    {renderInputFields(basicInputTypes.find(inputType => inputType.name === tables[tableIndex].rows[index].type))}
                                                 </div>
 
-                                                {/* Primary key switch */}
-                                                <div key={index}>
-                                                    <FormGroup style={{ minWidth: 150, marginLeft: '20px'}}>
-                                                        <FormControlLabel
-                                                            control={<Switch defaultChecked={checkedStates[index]} onChange={handleChange(index)} />}
-                                                            label={checkedStates[index] ? 'PK' : 'Not PK'}
-                                                        />
-                                                    </FormGroup>
+                                                {/* Primary key switch */}              
+                                                <div key={row.id} style={{ minWidth: 150, marginLeft: '20px'}}>
+                                                    <Switch
+                                                        checked={row.PK}
+                                                        onChange={handlePKChange(tableIndex, index)}
+                                                        
+                                                    />
                                                 </div>
-
-
 
                                                 {/* Delete Button */}
-                                                {rows.length > 1 && (
-                                                    <DeleteOutlinedIcon onClick={() => handleDeleteRow(index)} style={{ cursor: 'pointer' }} />
+                                                {tables[tableIndex].rows.length > 1 && (
+                                                    <DeleteOutlinedIcon onClick={() => handleDeleteRow(tableIndex, index)} style={{ cursor: 'pointer' }} />
                                                 )}
                                             </div>
                                         </div>
