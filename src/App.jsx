@@ -50,6 +50,97 @@ export default function App() {
 
     const [checkedStates, setCheckedStates] = useState([true]); // Assuming initial state is true for defaultChecked
 
+    const [tableName, setTableName] = useState(['Table_0']);
+
+    const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '50'}]}]);
+
+    const handleTableNameChange = (event) => {
+        const newTableName = event.target.value;
+        // setTableName(newTableName);
+        setTables(prevTables => {
+            const updatedTables = [...prevTables];
+            updatedTables[tableIndex].tableName = newTableName;
+            return updatedTables;
+        })
+        console.log("TableName changed to:", newTableName);
+    };
+
+    const handleAddTable = () => {
+        console.log('Adding a new table');
+        const newTable = {
+            id: '${tables.length}',
+            tableName: `Table ${tables.length}`,
+            rows: [{ id: 1, name: 'row_number_0', type: 'Row Number', blanks: '50' }] // Default initial row
+        };
+        setTables(prevTables => [...prevTables, newTable]);
+        
+        // Log each table along with its rows
+        tables.forEach((table, index) => {
+            console.log(`Table ${index}:`, table);
+        });
+    };
+
+
+    const handleDeleteTable = (tableIndex) => {
+        setTables(prevTables => {
+            const updatedTables = [...prevTables];
+            updatedTables.splice(tableIndex, 1);
+            return updatedTables;
+        });
+    };
+
+
+    const handleAddRow = (tableIndex) => {
+        console.log('Adding a new row');
+        const newRow = {
+            id: tables[tableIndex].rows.length + 1, 
+            name: `row_number_${rows.length}`,
+            type: 'Row Number',
+            blanks: '50'
+        };
+        setRows(prevRows => [...prevRows, newRow]);
+        setTables(prevTables => {
+            const updatedTables = [...prevTables];
+            updatedTables[tableIndex].rows = [...updatedTables[tableIndex].rows, newRow];
+            return updatedTables;
+        });
+
+        // console.log("Table Row:", newRow);
+        // console.log("Table Rows:");
+        //     tables.forEach((table, index) => {
+        //         console.log(`Table ${index} Rows:`, table);
+        // });
+        // Log all tables
+        console.log("All Tables:", tables);
+    };
+
+    // const handleAddRow = (tableIndex) => {
+    //     console.log('Adding a new row');
+    //     const newRow = {
+    //         name: `row_number_${rows.length}`,
+    //         type: 'Row Number',
+    //         blanks: '50'
+    //     };
+    //     setRows(prevRows => [...prevRows, newRow]);
+
+    //     console.log("Table Row:", newRow);
+    // };
+
+
+    // const handleDeleteRow = (indexToDelete) => {
+    //     setRows(prevRows => prevRows.filter((row, index) => index !== indexToDelete));
+    // };
+
+    const handleDeleteRow = (tableIndex, rowIndex) => {
+        setTables(prevTables => {
+            const updatedTables = [...prevTables];
+            updatedTables[tableIndex].rows.splice(rowIndex, 1); // Remove the row at the specified index
+            return updatedTables;
+        });
+        // console.log("Delete Row:", table[tableIndex]);
+        console.log("All Tables:", tables);
+    };
+
     const handleChange = (index) => (event) => {
         const newCheckedStates = [...checkedStates];
         newCheckedStates[index] = event.target.checked;
@@ -71,6 +162,7 @@ export default function App() {
     const handleInputSelectionDialogOpen = (event, index) => {
         setAnchorEl(index);
         setOpen(true);
+        console.log("Row Object:", row);
     };
 
 
@@ -102,20 +194,24 @@ export default function App() {
         setRows(defaultRows);
     };
 
-    const handleAddRow = () => {
-        console.log('Adding a new row');
-        const newRow = {
-            name: `row_number_${rows.length}`,
-            type: 'Row Number',
-            blanks: '50'
-        };
-        setRows(prevRows => [...prevRows, newRow]);
-    };
+    // const handleResetAllTable = () => {
+    //     // Set rows to default
+    //     const defaultRows = [{
+    //         name: 'row_number_0',
+    //         type: 'Row Number',
+    //         blanks: '50'
+    //     }];
+    //     // setRows(defaultRows);
+    //     // Map over the tables array and reset each table's rows to default
+    //     const resetTables = tables.map(table => ({
+    //         ...table,
+    //         tableName: 'Table_0',
+    //         rows: [defaultRows] // Set rows to contain only the default row
+    //     }));
 
-
-    const handleDeleteRow = (indexToDelete) => {
-        setRows(prevRows => prevRows.filter((row, index) => index !== indexToDelete));
-    };
+    //     // Update the state with the reset tables
+    //     setTables(resetTables);
+    // };
 
     const handleFormatChange = (event) => {
         setFormat(event.target.value);
@@ -143,7 +239,7 @@ export default function App() {
     };
 
     // CSV Functions
-    const convertRowsToCSV = () => {
+    const convertRowsToCSV = (TableName) => {
         let csvContent = "data:text/csv;charset=utf-8,";
 
         // Extract field names, types, and blanks percentages
@@ -252,10 +348,11 @@ export default function App() {
 
     // Function to handle CSV download
     const handleDownloadCSV = () => {
-        const csvContent = convertRowsToCSV();
+        const csvContent = convertRowsToCSV(tableName);
         const link = document.createElement("a");
         link.setAttribute("href", csvContent);
-        link.setAttribute("download", "data.csv");
+        // link.setAttribute("download", "data.csv");
+        link.setAttribute("download", tableName + '.csv');
         document.body.appendChild(link);
         link.click();
     };
@@ -388,10 +485,40 @@ export default function App() {
             {/* Reset All button */}
             <div style={{display: 'flex', minWidth: 200, alignItems: 'center', marginBottom: '20px', marginLeft: '800px', marginRight: '20px' }}>
                 <Button onClick={handleResetAll} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
-                    Reset All
+                    Reset All Tables
                 </Button>
             </div>
-            
+
+            {tables.map((table, tableIndex) => (
+            <div key={tableIndex}>
+            {/* Input Table Name  and delete table button*/}
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                <div style={{ minWidth: 50, marginLeft: '10px' }}>Table Name: </div>
+                    <TextField
+                        id={`Table_${tableIndex}`}
+                        sx={{ minWidth: 100, marginLeft: '10px', marginRight: '50px' }}
+                        variant="outlined"
+                        InputProps={{
+                            style: { borderRadius: '15px' }
+                        }}
+                        value={table.tableName}
+                        // onChange={handleTableNameChange} 
+                        onChange={(event) => handleTableNameChange(event, tableIndex)} 
+                    />
+
+                    {/* <div style={{ minWidth: 50, marginLeft: '10px' }}> {tableName.name} </div> */}
+                    {tables.length > 1 && (
+                        <Button onClick={handleDeleteTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '5px', marginRight: '40px' }}>
+                            Delete Table
+                        </Button>
+                    )}
+                    
+                    <Button onClick={handleResetAll} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                        Reset All Rows
+                    </Button>
+          
+                </div>
+          
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
                 <div style={{ minWidth: 300, marginLeft: '60px' }}>Field Name</div>
                 <div style={{ minWidth: 220, marginLeft: '10px' }}>Type</div>
@@ -399,11 +526,12 @@ export default function App() {
                 <div style={{ minWidth: 600, marginLeft: '10px' }}>Other Options</div>
                 <div style={{ minWidth: 0, marginLeft: '10px' }}>Primary Key</div>
             </div>
+            
             <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="rows">
                     {(provided) => (
                         <div {...provided.droppableProps} ref={provided.innerRef}>
-                            {rows.map((row, index) => (
+                            {table.rows.map((row, index) => (
                                 <Draggable key={index} draggableId={index.toString()} index={index}>
                                     {(provided) => (
                                         <div
@@ -445,6 +573,8 @@ export default function App() {
                                                     color: 'black',backgroundColor: 'transparent', '&:hover': {color: 'black', backgroundColor: 'transparent'}}}
                                                 
                                                     >   
+                                                        
+
                                                         {row.type || 'Select Type'} 
       
                                                     </Button>
@@ -562,13 +692,29 @@ export default function App() {
             </DragDropContext>
 
             {/* Add New Row Button */}
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px' }}>
-                <Button onClick={handleAddRow} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px', marginLeft: '50px' }}>
+                <Button onClick={()=>handleAddRow(tableIndex)} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
                     <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
-                    ADD
+                    ADD Rows
                 </Button>
             </div>
- 
+
+            {tables.length > 1 && (
+                <div style={{ margin: '20px 20px', height: '2px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
+            
+            )} 
+
+        </div>
+        ))}
+
+            {/* Add New Table Button */}
+            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px' }}>
+                <Button onClick={handleAddTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
+                    <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
+                    ADD Tables
+                </Button>
+            </div>
+
             <div style={{ margin: '20px 20px', height: '2px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
 
             <div style={{ display: 'flex', alignItems: 'center', marginLeft: '100px' }}>
