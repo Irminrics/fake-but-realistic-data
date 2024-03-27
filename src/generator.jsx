@@ -1,6 +1,5 @@
 // Checklist
 // Blank (Done)
-// Blank (Done)
 // Boolean (Done)
 // Colour (Done)
 // Custom List
@@ -23,6 +22,9 @@
 // Time (Done)
 // ULID (Done)
 // Words (Done)
+// Exponential Distribution
+// Normal Distribution
+// Poisson Distribution
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -389,3 +391,31 @@ export function generateRandomWords(atLeast, atMost) {
   
     return randomWords.join(' ');
 }
+
+// Function to generate a random exponential distribution
+export function generateRandomExponentialDistribution(mean) {
+    return -Math.log(1 - Math.random()) * mean;
+}
+
+// Function to generate a random normal distribution
+export function generateRandomNormalDistribution(mean, stddev, decimals) {
+    let u = 0;
+    let v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    return (z * stddev + mean).toFixed(decimals);
+}
+
+// Function to generate a random Poisson distribution
+export function generateRandomPoissonDistribution(mean) {
+    let L = Math.exp(-mean);
+    let p = 1.0;
+    let k = 0;
+    do {
+        k++;
+        p *= Math.random();
+    } while (p > L);
+    return k - 1;
+}
+
