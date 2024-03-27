@@ -288,7 +288,9 @@ export default function App() {
 
         // Encode CSV content
         const encodedUri = encodeURI(csvContent);
-        return encodedUri;
+        const fixedEncodedURI = encodedUri.replaceAll('#', '%23');
+
+        return fixedEncodedURI;
     };
 
 

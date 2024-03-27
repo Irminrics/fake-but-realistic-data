@@ -145,7 +145,7 @@ export function generateRandomGUID() {
 // Function to generate a random color
 export function generateRandomHexColor() {
     // Generate a random hex color
-    return Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    return "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 }
 
 
@@ -292,7 +292,7 @@ export function generateRandomShortHexColor() {
     // Generate a random short hex color
     const colorCode = Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
     // Include the hashtag in the color code
-    return colorCode.substring(0, 3);
+    return "#" + colorCode.substring(0, 3);
 }
 
 // Function to generate a random sentences
