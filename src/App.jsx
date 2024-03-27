@@ -2,12 +2,18 @@ import * as React from 'react';
 import { useState } from 'react';
 
 import Header from './components/Header';
+import ForeignKeyDialog from './components/ForeignKeyDialog';
 import { basicInputTypes } from './inputType';
 import { customListTypes } from './customListType';
 import { datetimeFormatListTypes } from './datetimeFormatListTypes';
 import { timeFormatListTypes } from './timeFormatListTypes';
 
 import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -100,6 +106,17 @@ export default function App() {
             blanks: '50'
         }];
         setRows(defaultRows);
+    };
+
+    const [openFKDialog, setOpenFKDialog] = React.useState(false);
+
+    const handleFKDialogClose = () => {
+        setOpenFKDialog(false);
+      };
+
+    const handleUpdateFKButtonPressed = () => {
+        console.log("FK Button Pressed")
+        setOpenFKDialog(true);
     };
 
     const handleAddRow = () => {
@@ -280,9 +297,6 @@ export default function App() {
         const encodedUri = encodeURI(csvContent);
         return encodedUri;
     };
-
-
-
     
 
     // Function to handle CSV download
@@ -425,7 +439,12 @@ export default function App() {
                 <Button onClick={handleResetAll} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                     Reset All
                 </Button>
+                <Button onClick={handleUpdateFKButtonPressed} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                    Update Foreign Key Constraints
+                </Button>
             </div>
+
+            <ForeignKeyDialog open={openFKDialog} onClose={handleFKDialogClose} />
             
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
                 <div style={{ minWidth: 300, marginLeft: '60px' }}>Field Name</div>
