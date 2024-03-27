@@ -31,8 +31,6 @@ import { CropTwoTone, TypeSpecimen } from '@mui/icons-material';
 import IconButton from "@mui/material/IconButton";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import Switch from '@mui/material/Switch';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import * as generator from './generator';
 
@@ -42,10 +40,7 @@ export default function App() {
     const [format, setFormat] = React.useState('CSV');
     const [customListValue, setCustomListValue] = React.useState('random');
 
-    // const [anchorEl, setAnchorEl] = React.useState(null);
-    // Example of state initialization
     const [anchorEl, setAnchorEl] = useState({ el: null, tableIndex: null, rowIndex: null });
-
 
     const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -182,20 +177,6 @@ export default function App() {
         handleClose(tableIndex, rowIndex); // Assuming handleClose can also handle tableIndex and rowIndex
     };
     
-
-
-    // const handleTypeSelect = (typeName, index) => {
-    //     console.log("In handletypeselect" ,typeName, index)
-    //     const newName = typeName.toLowerCase().replace(/\s/g, '_') + "_" + index;
-    //     setRows(prevRows => prevRows.map((r, typeCellIndex) => typeCellIndex === index ? { ...r, type: typeName, name: newName } : r));
-    //     handleClose(index);
-    // };
-
-
-    // const handleClose = (index) => {
-    //     setAnchorEl(null);
-    //     setOpen(false);
-    // };
     const handleClose = () => {
         setOpen(false);
         setAnchorElInfo({ el: null, tableIndex: null, rowIndex: null }); // Reset
@@ -210,7 +191,7 @@ export default function App() {
     const handleResetAll = (tableIndex) => {
         // Define default rows to reset to
         const defaultRows = [{
-            id: 0, // Assuming each row has a unique ID, include it here
+            id: 0, 
             name: 'row_number_0',
             type: 'Row Number',
             blanks: '50'
@@ -228,7 +209,7 @@ export default function App() {
     const handleResetAllTable = () => {
         // Define default rows to reset to
         const defaultTables = {
-            id: 0, // Assuming each row has a unique ID, include it here
+            id: 0, 
             tableName: 'Table_0',
             rows:[{
                 id: 0,
@@ -259,14 +240,6 @@ export default function App() {
         setTimeFormatListValue(event.target.value);
     };
 
-
-    // const handleDragEnd = (result) => {
-    //     if (!result.destination) return;
-    //     const items = Array.from(rows);
-    //     const [reorderedItem] = items.splice(result.source.index, 1);
-    //     items.splice(result.destination.index, 0, reorderedItem);
-    //     setRows(items);
-    // };
     const handleDragEnd = (result, tableIndex) => {
         if (!result.destination) return;
         setTables(prevTables => prevTables.map((table, idx) => {
@@ -281,7 +254,6 @@ export default function App() {
     };
     
     
-
     // CSV Functions
     const convertRowsToCSV = (TableName) => {
         let csvContent = "data:text/csv;charset=utf-8,";
