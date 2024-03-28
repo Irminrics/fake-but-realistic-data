@@ -277,10 +277,29 @@ export default function App() {
             sequence = generator.generateSequence(startAt, step, repeat, restartAt, numberOfRowsInOutput);
         }
 
+
+        // Booleans to decide if hex color and ISBN generation should be unique
+        const isHexColorUnique = true;
+        const isISBNUnique = true;
+
+        // Set to check uniqueness of color
+        const generatedColors = new Set();
+
+        // Set to check uniqueness of ISBN
+        const generatedISBN = new Set();
         
         // Repeat types based on numberOfRowsInOutput
         for (let i = 0; i < numberOfRowsInOutput; i++) {
             const rowData = types.map((type, index) => {
+                // Determine if this column should be blank for the current row
+                const blankChance = Math.random() * 100;
+                const blankThreshold = blanksPercentages[index];
+
+                // Check if the generated number is less than the blank threshold
+                if (blankChance < blankThreshold) {
+                    return '';
+                }
+
                 if (type === 'Row Number') {
                     // If type is row number, print the row number
                     return i + 1;
@@ -302,9 +321,21 @@ export default function App() {
                 } else if (type === 'GUID') {
                     return generator.generateRandomGUID();
                 } else if (type === 'Hex Colour') {
-                    return generator.generateRandomHexColor();
+                    let newColor;
+                    do {
+                        newColor = generator.generateRandomHexColor();
+                    } while (isHexColorUnique && generatedColors.has(newColor));
+                    
+                    generatedColors.add(newColor);
+                        return newColor;
                 } else if (type === 'ISBN') {
-                    return generator.generateRandomISBN();
+                    let newISBN;
+                    do {
+                        newISBN = generator.generateRandomISBN();
+                    } while (isISBNUnique && generatedISBN.has(newISBN));
+
+                    generatedISBN.add(newISBN);
+                    return newISBN;
                 } else if (type === 'MongoDB ObjectID') {
                     return generator.generateRandomMongoDBObjectId();
                 } else if (type === 'Nato Phonetic') {
@@ -361,6 +392,10 @@ export default function App() {
         const encodedUri = encodeURI(csvContent);
         return encodedUri;
     };
+
+
+
+    
 
     // Function to handle CSV download
     const handleDownloadCSV = () => {
