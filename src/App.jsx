@@ -69,15 +69,16 @@ export default function App() {
     };
 
     const handleAddTable = () => {
-        console.log('Adding a new table');
-        const newTable = {
-            id: tables.length,
-            tableName: `Table_${tables.length}`,
-            rows: [{ id: 0, name: 'row_number_10', type: 'Row Number', blanks: '50', PK: false }]
-        };
-        setTables(prevTables => [...prevTables, newTable]);
-        
-        console.log("All Tables:", tables);
+        if (tables.length < 2) {
+            console.log('Adding a new table');
+            const newTable = {
+                id: tables.length,
+                tableName: `Table_${tables.length}`,
+                rows: [{ id: 0, name: 'row_number_10', type: 'Row Number', blanks: '50', PK: false }]
+            };
+            setTables(prevTables => [...prevTables, newTable]);
+            console.log("All Tables:", tables);
+        }
     };
 
     // useEffect hook to log 'tables' state on update
@@ -563,7 +564,7 @@ export default function App() {
                 </Button>
             </div>
 
-            <ForeignKeyDialog open={openFKDialog} onClose={handleFKDialogClose} />
+            <ForeignKeyDialog open={openFKDialog} onClose={handleFKDialogClose} tables={tables} />
 
             {tables.map((table, tableIndex) => (
             <div key={tableIndex}>
@@ -806,7 +807,7 @@ export default function App() {
 
             {/* Add New Table Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px' }}>
-                <Button onClick={handleAddTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
+                <Button onClick={handleAddTable} disabled={tables.length >= 2} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
                     <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
                     ADD Tables
                 </Button>
