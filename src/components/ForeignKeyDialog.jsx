@@ -15,14 +15,23 @@ export default function ForeignKeyDialog({ open, onClose }) {
         <Dialog
         open={open}
         onClose={onClose}
+        maxWidth="xl"
         >
         <DialogTitle>
         {"Update Foreign Key Constraints"}
         </DialogTitle>
-
+ 
         <DialogContent>
             <DialogContentText>
-                TBU
+                {/* Instructions */}
+                <ul>
+                    <li>Drag the arrows from the field names of one table to another to indicate a "FOREIGN KEY REFERENCES" relationship.</li>
+                    <li>Eg. A_ID <span className="keyword-highlight">&rarr;</span> B_ID indicates a "A_ID <span className="keyword-highlight">FOREIGN KEY REFERENCES</span> B_ID" relationship.</li>
+                    <li>This step is optional.</li>
+                </ul>
+
+                {/* Table Rows */}
+                
             </DialogContentText>
         </DialogContent>
 

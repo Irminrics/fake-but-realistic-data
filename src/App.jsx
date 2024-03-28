@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import './css/main.css';
 
 import Header from './components/Header';
 import ForeignKeyDialog from './components/ForeignKeyDialog';
