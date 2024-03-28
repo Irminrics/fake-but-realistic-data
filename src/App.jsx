@@ -255,17 +255,17 @@ export default function App() {
     
     
     // CSV Functions
-    const convertRowsToCSV = (TableName) => {
+    const convertRowsToCSV = (table) => {
         let csvContent = "data:text/csv;charset=utf-8,";
 
         // Extract field names, types, and blanks percentages
-        const headers = rows.map(row => row.name);
-        const types = rows.map(row => row.type);
-        const blanksPercentages = rows.map(row => row.blanks);
+        const headers = table.rows.map(row => row.name);
+        const types = table.rows.map(row => row.type);
+        const blanksPercentages = table.rows.map(row => row.blanks);
 
         // Append headers
         csvContent += headers.join(',') + '\r\n';
-
+ 
         // Generate sequence if needed
         const startAt = parseInt(document.getElementById(`start-at-text`)?.value) || 1;
         const step = parseInt(document.getElementById(`step-text`)?.value) || 1;
@@ -364,14 +364,20 @@ export default function App() {
 
     // Function to handle CSV download
     const handleDownloadCSV = () => {
-        const csvContent = convertRowsToCSV(tableName);
-        const link = document.createElement("a");
-        link.setAttribute("href", csvContent);
-        // link.setAttribute("download", "data.csv");
-        link.setAttribute("download", tableName + '.csv');
-        document.body.appendChild(link);
-        link.click();
+        tables.forEach((table, index) => {
+            setTimeout(() => {
+            const csvContent = convertRowsToCSV(table);
+            const link = document.createElement("a");
+            link.setAttribute("href", csvContent);
+            // link.setAttribute("download", "data.csv");
+            link.setAttribute("download", table.tableName + '.csv');
+            document.body.appendChild(link);
+            link.click();
+            }, index * 100); 
+        })
     };
+    
+    
 
     // Define a function to render input fields based on options
     const renderInputFields = (selectedInputTypeInfo) => {
