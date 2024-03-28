@@ -1,13 +1,20 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import './css/main.css';
 
 import Header from './components/Header';
+import ForeignKeyDialog from './components/ForeignKeyDialog';
 import { basicInputTypes } from './inputType';
 import { customListTypes } from './customListType';
 import { datetimeFormatListTypes } from './datetimeFormatListTypes';
 import { timeFormatListTypes } from './timeFormatListTypes';
 
 import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -206,6 +213,17 @@ export default function App() {
         }));
     };
 
+    const [openFKDialog, setOpenFKDialog] = React.useState(false);
+
+    const handleFKDialogClose = () => {
+        setOpenFKDialog(false);
+      };
+
+    const handleUpdateFKButtonPressed = () => {
+        console.log("FK Button Pressed")
+        setOpenFKDialog(true);
+    };
+
     const handleResetAllTable = () => {
         // Define default rows to reset to
         const defaultTables = {
@@ -217,7 +235,6 @@ export default function App() {
                 type: 'Row Number',
                 blanks: '50'
             }]
-            
         };
     
         // Set the state to an array containing just the default table
@@ -392,9 +409,6 @@ export default function App() {
         const encodedUri = encodeURI(csvContent);
         return encodedUri;
     };
-
-
-
     
 
     // Function to handle CSV download
@@ -544,7 +558,12 @@ export default function App() {
                 <Button onClick={handleResetAllTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                     Reset All Tables
                 </Button>
+                <Button onClick={handleUpdateFKButtonPressed} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                    Update Foreign Key Constraints
+                </Button>
             </div>
+
+            <ForeignKeyDialog open={openFKDialog} onClose={handleFKDialogClose} />
 
             {tables.map((table, tableIndex) => (
             <div key={tableIndex}>
@@ -575,7 +594,7 @@ export default function App() {
                     </Button>
           
                 </div>
-          
+            
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
                 <div style={{ minWidth: 300, marginLeft: '60px' }}>Field Name</div>
                 <div style={{ minWidth: 220, marginLeft: '10px' }}>Type</div>
