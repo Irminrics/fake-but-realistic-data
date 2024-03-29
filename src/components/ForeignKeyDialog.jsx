@@ -106,8 +106,8 @@ export default function ForeignKeyDialog({ open, onClose, tables, onRelationsUpd
                 </ArcherContainer>
             </DialogContent>
             <DialogActions>
-                <Button className='primary-button' onClick={handleResetRelations}>Reset</Button>
-                <Button className='primary-button' onClick={handleSave}>Save & Close</Button>
+                <Button className='primary-button' onClick={handleResetRelations} variant="contained">Reset</Button>
+                <Button className='primary-button' onClick={handleSave} variant="contained">Save & Close</Button>
             </DialogActions>
         </Dialog>
     );
