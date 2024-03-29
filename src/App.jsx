@@ -282,6 +282,31 @@ export default function App() {
             }
             return table;
         }));
+
+        setRelations(prevRelations => prevRelations.map(relation => {
+            console.log("relations updated in main from drag end");
+
+            // Only update relations if they involve the table that had a row reordered
+            if (relation.tableId === tableIndex) {
+                // Update 'from' for relations originating from the reordered table
+                const updatedFromRelations = relation.relations.map(r => ({
+                    ...r,
+                    from: r.from === result.source.index ? result.destination.index 
+                         : r.from === result.destination.index ? result.source.index 
+                         : r.from,
+                }));
+                return { ...relation, relations: updatedFromRelations };
+            } else {
+                // Update 'to' for relations pointing to a row in the reordered table
+                const updatedToRelations = relation.relations.map(r => ({
+                    ...r,
+                    to: r.to === result.source.index ? result.destination.index 
+                        : r.to === result.destination.index ? result.source.index 
+                        : r.to,
+                }));
+                return { ...relation, relations: updatedToRelations };
+            }
+        }));
     };
     
     // CSV Functions
@@ -576,7 +601,13 @@ export default function App() {
                 </Button>
             </div>
 
-            <ForeignKeyDialog open={openFKDialog} onClose={handleFKDialogClose} tables={tables} onRelationsUpdate={handleRelationsUpdate}/>
+            <ForeignKeyDialog 
+                open={openFKDialog} 
+                onClose={handleFKDialogClose} 
+                tables={tables} 
+                mainRelation={relations} 
+                onRelationsUpdate={handleRelationsUpdate}
+            />
 
             {tables.map((table, tableIndex) => (
             <div key={tableIndex}>

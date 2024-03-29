@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
 import { ArcherContainer, ArcherElement } from 'react-archer';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -11,7 +12,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 
-export default function ForeignKeyDialog({ open, onClose, tables, onRelationsUpdate }) {
+export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, onRelationsUpdate }) {
     const [relations, setRelations] = React.useState([
         { tableId: 0, relations: [] }, 
         { tableId: 1, relations: [] }
@@ -33,7 +34,17 @@ export default function ForeignKeyDialog({ open, onClose, tables, onRelationsUpd
     const handleSave = () => {
         onRelationsUpdate(relations);
         onClose();
-    };
+    };  
+
+    useEffect(() => {
+        console.log("Main relations changed:", mainRelation);
+    
+        if (Array.isArray(mainRelation) && mainRelation.every(rel => 'tableId' in rel && Array.isArray(rel.relations))) {
+            setRelations(mainRelation);
+        } else {
+            console.error("Unexpected structure for mainRelation", mainRelation);
+        }
+    }, [mainRelation]);
 
     const handleDrop = (event, tableIndex, rowIndex) => {
         // Restrict to different tables only
@@ -52,6 +63,11 @@ export default function ForeignKeyDialog({ open, onClose, tables, onRelationsUpd
     };
 
     const getRelationsForElement = (tableIndex, rowIndex) => {
+        if (!relations || !Array.isArray(relations)) {
+            console.log("relations is still empty");
+            return [];
+        }
+
         const tableRelations = relations.find(rel => rel.tableId === tableIndex)?.relations || [];
         return tableRelations
             .filter(rel => rel.from === rowIndex)
