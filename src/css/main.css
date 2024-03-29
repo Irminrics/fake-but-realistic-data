@@ -1,17 +1,52 @@
 body {
-display: grid;
-place-items: center;
-font-family: Arial, Helvetica, sans-serif;
+    display: grid;
+    place-items: center;
+    font-family: Arial, Helvetica, sans-serif;
 }
+
 .keyword-highlight {
     color: #2196f3;
 }
 
+.tables-container {
+    display: flex;
+    justify-content: space-between; /* Or 'flex-start' to align them to the start */
+    align-items: flex-start; /* Align items to the start of the cross axis */
+}
+
+.table-column {
+    flex: 1;
+    margin: 0 10px; /* Optional: add some space between columns */
+}
+
+.table-header {
+    color: #2196f3;
+    font-weight: bold;
+}
+
+.table-fieldname-cell {
+    background-color: #f2f2f2;
+    border-radius: 25px;
+    padding: 20px;
+    text-align: 'center';
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 .wrapper {
-padding: 20px;
-border-radius: 10px;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+Button.primary-button {
+    background-color: #1E90FF;
+    color: white;
+    border-radius: 30px; 
+    margin-right: 20px;
+    margin-bottom: 20px;
+    min-width: 100px;
 }
 
 h1 {
-color: #2196f3;
+    color: #2196f3;
 }
