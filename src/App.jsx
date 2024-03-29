@@ -596,7 +596,7 @@ export default function App() {
                 <Button onClick={handleResetAllTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                     Reset All Tables
                 </Button>
-                <Button onClick={handleUpdateFKButtonPressed} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                <Button onClick={handleUpdateFKButtonPressed} disabled={tables.length < 2} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                     Update Foreign Key Constraints
                 </Button>
             </div>
