@@ -4,24 +4,18 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.keyword-highlight {
+h1 {
     color: #2196f3;
 }
 
-.tables-container {
-    display: flex;
-    justify-content: space-between; /* Or 'flex-start' to align them to the start */
-    align-items: flex-start; /* Align items to the start of the cross axis */
-}
-
-.table-column {
-    flex: 1;
-    margin: 0 10px; /* Optional: add some space between columns */
+.keyword-highlight {
+    color: #2196f3;
 }
 
 .table-header {
     color: #2196f3;
     font-weight: bold;
+    text-align: center;
 }
 
 .table-fieldname-cell {
@@ -45,8 +39,4 @@ Button.primary-button {
     margin-right: 20px;
     margin-bottom: 20px;
     min-width: 100px;
-}
-
-h1 {
-    color: #2196f3;
 }

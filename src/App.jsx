@@ -57,6 +57,15 @@ export default function App() {
 
     const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '50', PK: false}]}]);
 
+    const [relations, setRelations] = useState([
+        { tableId: 0, relations: [] },
+        { tableId: 1, relations: [] }
+    ]);
+
+    const handleRelationsUpdate = (newRelations) => {
+        setRelations(newRelations);
+    };
+
     const handleTableNameChange = (event, tableIndex) => {
         const newTableName = event.target.value;
         // setTableName(newTableName);
@@ -85,6 +94,10 @@ export default function App() {
     useEffect(() => {
         console.log("All Tables:", tables);
     }, [tables]);
+
+    useEffect(() => {
+        console.log("Updated Foreign Key Relations:", relations);
+    }, [relations]);
 
     const handleDeleteTable = (tableIndex) => {
         setTables(prevTables => {
@@ -218,7 +231,7 @@ export default function App() {
 
     const handleFKDialogClose = () => {
         setOpenFKDialog(false);
-      };
+    };
 
     const handleUpdateFKButtonPressed = () => {
         console.log("FK Button Pressed")
@@ -270,7 +283,6 @@ export default function App() {
             return table;
         }));
     };
-    
     
     // CSV Functions
     const convertRowsToCSV = (table) => {
@@ -564,7 +576,7 @@ export default function App() {
                 </Button>
             </div>
 
-            <ForeignKeyDialog open={openFKDialog} onClose={handleFKDialogClose} tables={tables} />
+            <ForeignKeyDialog open={openFKDialog} onClose={handleFKDialogClose} tables={tables} onRelationsUpdate={handleRelationsUpdate}/>
 
             {tables.map((table, tableIndex) => (
             <div key={tableIndex}>
