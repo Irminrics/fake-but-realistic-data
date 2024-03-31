@@ -1,13 +1,20 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import './css/main.css';
 
 import Header from './components/Header';
+import ForeignKeyDialog from './components/ForeignKeyDialog';
 import { basicInputTypes } from './inputType';
 import { customListTypes } from './customListType';
 import { datetimeFormatListTypes } from './datetimeFormatListTypes';
 import { timeFormatListTypes } from './timeFormatListTypes';
 
 import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -50,6 +57,15 @@ export default function App() {
 
     const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '50', PK: false}]}]);
 
+    const [relations, setRelations] = useState([
+        { tableId: 0, relations: [] },
+        { tableId: 1, relations: [] }
+    ]);
+
+    const handleRelationsUpdate = (newRelations) => {
+        setRelations(newRelations);
+    };
+
     const handleTableNameChange = (event, tableIndex) => {
         const newTableName = event.target.value;
         // setTableName(newTableName);
@@ -62,21 +78,26 @@ export default function App() {
     };
 
     const handleAddTable = () => {
-        console.log('Adding a new table');
-        const newTable = {
-            id: tables.length,
-            tableName: `Table_${tables.length}`,
-            rows: [{ id: 0, name: 'row_number_10', type: 'Row Number', blanks: '50', PK: false }]
-        };
-        setTables(prevTables => [...prevTables, newTable]);
-        
-        console.log("All Tables:", tables);
+        if (tables.length < 2) {
+            console.log('Adding a new table');
+            const newTable = {
+                id: tables.length,
+                tableName: `Table_${tables.length}`,
+                rows: [{ id: 0, name: 'row_number_10', type: 'Row Number', blanks: '50', PK: false }]
+            };
+            setTables(prevTables => [...prevTables, newTable]);
+            console.log("All Tables:", tables);
+        }
     };
 
     // useEffect hook to log 'tables' state on update
     useEffect(() => {
         console.log("All Tables:", tables);
     }, [tables]);
+
+    useEffect(() => {
+        console.log("Updated Foreign Key Relations:", relations);
+    }, [relations]);
 
     const handleDeleteTable = (tableIndex) => {
         setTables(prevTables => {
@@ -206,6 +227,17 @@ export default function App() {
         }));
     };
 
+    const [openFKDialog, setOpenFKDialog] = React.useState(false);
+
+    const handleFKDialogClose = () => {
+        setOpenFKDialog(false);
+    };
+
+    const handleUpdateFKButtonPressed = () => {
+        console.log("FK Button Pressed")
+        setOpenFKDialog(true);
+    };
+
     const handleResetAllTable = () => {
         // Define default rows to reset to
         const defaultTables = {
@@ -217,7 +249,6 @@ export default function App() {
                 type: 'Row Number',
                 blanks: '50'
             }]
-            
         };
     
         // Set the state to an array containing just the default table
@@ -251,8 +282,32 @@ export default function App() {
             }
             return table;
         }));
+
+        setRelations(prevRelations => prevRelations.map(relation => {
+            console.log("relations updated in main from drag end");
+
+            // Only update relations if they involve the table that had a row reordered
+            if (relation.tableId === tableIndex) {
+                // Update 'from' for relations originating from the reordered table
+                const updatedFromRelations = relation.relations.map(r => ({
+                    ...r,
+                    from: r.from === result.source.index ? result.destination.index 
+                         : r.from === result.destination.index ? result.source.index 
+                         : r.from,
+                }));
+                return { ...relation, relations: updatedFromRelations };
+            } else {
+                // Update 'to' for relations pointing to a row in the reordered table
+                const updatedToRelations = relation.relations.map(r => ({
+                    ...r,
+                    to: r.to === result.source.index ? result.destination.index 
+                        : r.to === result.destination.index ? result.source.index 
+                        : r.to,
+                }));
+                return { ...relation, relations: updatedToRelations };
+            }
+        }));
     };
-    
     
     // CSV Functions
     const convertRowsToCSV = (table) => {
@@ -404,9 +459,6 @@ export default function App() {
 
         return fixedEncodedURI;
     };
-
-
-
     
 
     // Function to handle CSV download
@@ -556,7 +608,18 @@ export default function App() {
                 <Button onClick={handleResetAllTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
                     Reset All Tables
                 </Button>
+                <Button onClick={handleUpdateFKButtonPressed} disabled={tables.length < 2} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                    Update Foreign Key Constraints
+                </Button>
             </div>
+
+            <ForeignKeyDialog 
+                open={openFKDialog} 
+                onClose={handleFKDialogClose} 
+                tables={tables} 
+                mainRelation={relations} 
+                onRelationsUpdate={handleRelationsUpdate}
+            />
 
             {tables.map((table, tableIndex) => (
             <div key={tableIndex}>
@@ -587,7 +650,7 @@ export default function App() {
                     </Button>
           
                 </div>
-          
+            
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
                 <div style={{ minWidth: 300, marginLeft: '60px' }}>Field Name</div>
                 <div style={{ minWidth: 220, marginLeft: '10px' }}>Type</div>
@@ -799,7 +862,7 @@ export default function App() {
 
             {/* Add New Table Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px' }}>
-                <Button onClick={handleAddTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
+                <Button onClick={handleAddTable} disabled={tables.length >= 2} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
                     <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
                     ADD Tables
                 </Button>

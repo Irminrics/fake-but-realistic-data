@@ -1,14 +1,42 @@
 body {
-display: grid;
-place-items: center;
-font-family: Arial, Helvetica, sans-serif;
-}
-
-.wrapper {
-padding: 20px;
-border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 h1 {
-color: #2196f3;
+    color: #2196f3;
+}
+
+.keyword-highlight {
+    color: #2196f3;
+}
+
+.table-header {
+    color: #2196f3;
+    font-weight: bold;
+    text-align: center;
+}
+
+.table-fieldname-cell {
+    background-color: #f2f2f2;
+    border-radius: 25px;
+    padding: 20px;
+    text-align: 'center';
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.wrapper {
+    padding: 20px;
+    border-radius: 10px;
+}
+
+Button.primary-button {
+    background-color: #1E90FF;
+    color: white;
+    border-radius: 30px; 
+    margin-right: 20px;
+    margin-bottom: 20px;
+    min-width: 100px;
 }
