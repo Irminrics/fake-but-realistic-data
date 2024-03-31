@@ -380,6 +380,16 @@ export default function App() {
                     const min = parseInt(document.getElementById(`at-least-text`).value) || 1;
                     const max = parseInt(document.getElementById(`at-most-text`).value) || 10;
                     return generator.generateRandomWords(min, max);
+                } else if (type === 'Exponential Distribution') {
+                    const lambda = parseFloat(document.getElementById(`lambda-text`).value) || 1;
+                    return generator.generateRandomExponentialDistribution(lambda); 
+                } else if (type === 'Normal Distribution') {
+                    const stddev = parseFloat(document.getElementById(`stddev-text`).value) || 1;
+                    const decimals = parseInt(document.getElementById(`decimals-text`).value) || 0;
+                    return generator.generateRandomNormalDistribution(stddev, decimals);
+                } else if (type === 'Poisson Distribution') {
+                    const mean = parseFloat(document.getElementById(`mean-text`).value) || 1;
+                    return generator.generateRandomPoissonDistribution(mean);
                 } else {
                     // Handle other types as needed
                     return ``;
@@ -390,7 +400,9 @@ export default function App() {
 
         // Encode CSV content
         const encodedUri = encodeURI(csvContent);
-        return encodedUri;
+        const fixedEncodedURI = encodedUri.replaceAll('#', '%23');
+
+        return fixedEncodedURI;
     };
 
 
