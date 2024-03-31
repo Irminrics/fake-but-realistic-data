@@ -86,8 +86,17 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
                 <DialogContentText>
                     <ul>
                         <li>Drag the arrows from the field names of one table to another to indicate a "FOREIGN KEY REFERENCES" relationship.</li>
+                        <li>The arrow must be unidirectional.</li>
                         <li>Eg. A_ID <span className="keyword-highlight">&rarr;</span> B_ID indicates a "A_ID <span className="keyword-highlight">FOREIGN KEY REFERENCES</span> B_ID" relationship.</li>
                         <li>This step is optional.</li>
+                    </ul>
+
+                    
+                    <div className='demo-highlight'>Demo Version</div>
+                    <ul>
+                        <li>Only one arrow is allowed (one arrow from table X to table Y only).</li>
+                        <li>The referenced row (Eg. B_ID) is automatically set to the primary key.</li>
+                        <li>The referencing row (Eg. A_ID) is automatically set to be not a primary key.</li>
                     </ul>
                 </DialogContentText>
                 <Divider />

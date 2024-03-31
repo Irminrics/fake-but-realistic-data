@@ -12,6 +12,11 @@ h1 {
     color: #2196f3;
 }
 
+.demo-highlight {
+    color: #bcbcbc;
+    font-style: italic;
+}
+
 .table-header {
     color: #2196f3;
     font-weight: bold;
