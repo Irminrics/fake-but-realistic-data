@@ -13,6 +13,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 
 export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, onRelationsUpdate }) {
+    const [hasMoreThanOneArrow, setHasAtLeastOneArrow] = useState(false);
+
     const [relations, setRelations] = React.useState([
         { tableId: 0, relations: [] }, 
         { tableId: 1, relations: [] }
@@ -46,7 +48,17 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
         }
     }, [mainRelation]);
 
+    useEffect(() => {
+        const totalRelationsCount = relations.reduce((acc, curr) => acc + curr.relations.length, 0);
+        console.log("Is there at least one arrow already:", totalRelationsCount >= 1);
+        setHasAtLeastOneArrow(totalRelationsCount >= 1);
+      }, [relations]);
+      
+
     const handleDrop = (event, tableIndex, rowIndex) => {
+        if (hasMoreThanOneArrow) {
+            return;
+        }
         // Restrict to different tables only
         if (dragSource && dragSource.tableIndex !== tableIndex) {
             setRelations((prevRelations) => {
@@ -92,9 +104,9 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
                     </ul>
 
                     
-                    <div className='demo-highlight'>Demo Version</div>
+                    <div className='demo-highlight'>Rules for Demo Version</div>
                     <ul>
-                        <li>Only one arrow is allowed (one arrow from table X to table Y only).</li>
+                        <li><span className="keyword-highlight">Only one arrow is allowed</span> (one arrow from table X to table Y only).</li>
                         <li>The referenced row (Eg. B_ID) is automatically set to the primary key.</li>
                         <li>The referencing row (Eg. A_ID) is automatically set to be not a primary key.</li>
                     </ul>
@@ -116,6 +128,7 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
                                             <div
                                                 className="table-fieldname-cell"
                                                 draggable="true"
+                                                id={`field-cell-${tableIndex}-${rowIndex}`}
                                                 onDragStart={(e) => handleDragStart(e, tableIndex, rowIndex)}
                                                 onDragOver={(e) => e.preventDefault()}
                                                 onDrop={(e) => handleDrop(e, tableIndex, rowIndex)}
