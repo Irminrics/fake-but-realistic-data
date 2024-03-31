@@ -12,6 +12,14 @@ h1 {
     color: #2196f3;
 }
 
+.keyword-red-highlight {
+    color: #ec4242;
+}
+
+.highlighted {
+    background-color: #79b9ee;
+}
+
 .demo-highlight {
     color: #bcbcbc;
     font-style: italic;
