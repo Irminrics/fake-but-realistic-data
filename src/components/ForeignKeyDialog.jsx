@@ -104,8 +104,8 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
                             {!hasMoreThanOneArrow && <span className="keyword-highlight">Only one arrow is allowed </span>}
                             {hasMoreThanOneArrow && <span className="keyword-red-highlight">Only one arrow is allowed </span>}
                              (one arrow from table X to table Y only).</li>
-                        <li>The referenced row (Eg. B_ID) is automatically set to the primary key.</li>
-                        <li>The referencing row (Eg. A_ID) is automatically set to be not a primary key.</li>
+                        <li>Ensure that the referenced row (Eg. B_ID) is a primary key.</li>
+                        <li>Ensure that the referencing row (Eg. A_ID) is not a primary key.</li>
                     </ul>
                 </DialogContentText>
                 <Divider />
