@@ -14,13 +14,24 @@ import Grid from '@mui/material/Grid';
 
 export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, onRelationsUpdate }) {
     const [hasMoreThanOneArrow, setHasAtLeastOneArrow] = useState(false);
+    const [relations, setRelations] = useState(mainRelation);
+    const [dragSource, setDragSource] = useState(null);
 
-    const [relations, setRelations] = React.useState([
-        { tableId: 0, relations: [] }, 
-        { tableId: 1, relations: [] }
-    ]);
+    useEffect(() => {
+        console.log("Main relations changed:", mainRelation);
+    
+        if (Array.isArray(mainRelation) && mainRelation.every(rel => 'tableId' in rel && Array.isArray(rel.relations))) {
+            setRelations(mainRelation);
+        } else {
+            console.error("Unexpected structure for mainRelation", mainRelation);
+        }
+    }, [mainRelation]);
 
-    const [dragSource, setDragSource] = React.useState(null);
+    useEffect(() => {
+        const totalRelationsCount = relations.reduce((acc, curr) => acc + curr.relations.length, 0);
+        console.log("Is there at least one arrow already:", totalRelationsCount >= 1);
+        setHasAtLeastOneArrow(totalRelationsCount >= 1);
+    }, [relations]);
 
     const handleDragStart = (event, tableIndex, rowIndex) => {
         setDragSource({ tableIndex, rowIndex });
@@ -37,23 +48,6 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
         onRelationsUpdate(relations);
         onClose();
     };  
-
-    useEffect(() => {
-        console.log("Main relations changed:", mainRelation);
-    
-        if (Array.isArray(mainRelation) && mainRelation.every(rel => 'tableId' in rel && Array.isArray(rel.relations))) {
-            setRelations(mainRelation);
-        } else {
-            console.error("Unexpected structure for mainRelation", mainRelation);
-        }
-    }, [mainRelation]);
-
-    useEffect(() => {
-        const totalRelationsCount = relations.reduce((acc, curr) => acc + curr.relations.length, 0);
-        console.log("Is there at least one arrow already:", totalRelationsCount >= 1);
-        setHasAtLeastOneArrow(totalRelationsCount >= 1);
-      }, [relations]);
-      
 
     const handleDrop = (event, tableIndex, rowIndex) => {
         if (hasMoreThanOneArrow) {
