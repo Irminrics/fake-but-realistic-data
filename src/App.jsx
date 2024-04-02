@@ -336,7 +336,7 @@ export default function App() {
         // For Foreign Key
         const referencingIndex = relations[table.id].relations[0]?.from;
         const referencedIndex = relations[table.id].relations[0]?.to;
-        const referencedTableTypes = tables[1 - table.id].rows.map(row => row.type);
+        const referencedTableTypes = tables[1 - table.id]?.rows.map(row => row.type);
 
         // Converted the unique generated sets to arrays for indexing
         const generatedRowNumbersArray = Array.from(generatedRowNumbers);
