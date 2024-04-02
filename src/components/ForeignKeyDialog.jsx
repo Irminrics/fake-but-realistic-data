@@ -13,12 +13,25 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 
 export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, onRelationsUpdate }) {
-    const [relations, setRelations] = React.useState([
-        { tableId: 0, relations: [] }, 
-        { tableId: 1, relations: [] }
-    ]);
+    const [hasMoreThanOneArrow, setHasAtLeastOneArrow] = useState(false);
+    const [relations, setRelations] = useState(mainRelation);
+    const [dragSource, setDragSource] = useState(null);
 
-    const [dragSource, setDragSource] = React.useState(null);
+    useEffect(() => {
+        console.log("Main relations changed:", mainRelation);
+    
+        if (Array.isArray(mainRelation) && mainRelation.every(rel => 'tableId' in rel && Array.isArray(rel.relations))) {
+            setRelations(mainRelation);
+        } else {
+            console.error("Unexpected structure for mainRelation", mainRelation);
+        }
+    }, [mainRelation]);
+
+    useEffect(() => {
+        const totalRelationsCount = relations.reduce((acc, curr) => acc + curr.relations.length, 0);
+        console.log("Is there at least one arrow already:", totalRelationsCount >= 1);
+        setHasAtLeastOneArrow(totalRelationsCount >= 1);
+    }, [relations]);
 
     const handleDragStart = (event, tableIndex, rowIndex) => {
         setDragSource({ tableIndex, rowIndex });
@@ -36,17 +49,10 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
         onClose();
     };  
 
-    useEffect(() => {
-        console.log("Main relations changed:", mainRelation);
-    
-        if (Array.isArray(mainRelation) && mainRelation.every(rel => 'tableId' in rel && Array.isArray(rel.relations))) {
-            setRelations(mainRelation);
-        } else {
-            console.error("Unexpected structure for mainRelation", mainRelation);
-        }
-    }, [mainRelation]);
-
     const handleDrop = (event, tableIndex, rowIndex) => {
+        if (hasMoreThanOneArrow) {
+            return;
+        }
         // Restrict to different tables only
         if (dragSource && dragSource.tableIndex !== tableIndex) {
             setRelations((prevRelations) => {
@@ -86,8 +92,20 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
                 <DialogContentText>
                     <ul>
                         <li>Drag the arrows from the field names of one table to another to indicate a "FOREIGN KEY REFERENCES" relationship.</li>
+                        <li>The arrow must be unidirectional.</li>
                         <li>Eg. A_ID <span className="keyword-highlight">&rarr;</span> B_ID indicates a "A_ID <span className="keyword-highlight">FOREIGN KEY REFERENCES</span> B_ID" relationship.</li>
                         <li>This step is optional.</li>
+                    </ul>
+
+                    
+                    <div className='demo-highlight'>Rules for Demo Version</div>
+                    <ul>
+                        <li>
+                            {!hasMoreThanOneArrow && <span className="keyword-highlight">Only one arrow is allowed </span>}
+                            {hasMoreThanOneArrow && <span className="keyword-red-highlight">Only one arrow is allowed </span>}
+                             (one arrow from table X to table Y only).</li>
+                        <li>Ensure that the referenced row (Eg. B_ID) is a primary key.</li>
+                        <li>Ensure that the referencing row (Eg. A_ID) is not a primary key.</li>
                     </ul>
                 </DialogContentText>
                 <Divider />
@@ -107,6 +125,7 @@ export default function ForeignKeyDialog({ open, onClose, tables, mainRelation, 
                                             <div
                                                 className="table-fieldname-cell"
                                                 draggable="true"
+                                                id={`field-cell-${tableIndex}-${rowIndex}`}
                                                 onDragStart={(e) => handleDragStart(e, tableIndex, rowIndex)}
                                                 onDragOver={(e) => e.preventDefault()}
                                                 onDrop={(e) => handleDrop(e, tableIndex, rowIndex)}

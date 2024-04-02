@@ -10,18 +10,12 @@ import { datetimeFormatListTypes } from './datetimeFormatListTypes';
 import { timeFormatListTypes } from './timeFormatListTypes';
 
 import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import AddCircleIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 
 import Popover from '@mui/material/Popover';
@@ -42,8 +36,6 @@ import Switch from '@mui/material/Switch';
 import * as generator from './generator';
 
 export default function App() {
-    const [rows, setRows] = React.useState([{ name: 'row_number_0', type: 'Row Number', blanks: '0' }]);
-    const [numberOfRowsInOutput, setNumberOfRowsInOutput] = React.useState(1000);
     const [format, setFormat] = React.useState('CSV');
     const [customListValue, setCustomListValue] = React.useState('random');
 
@@ -53,9 +45,7 @@ export default function App() {
 
     const [open, setOpen] = React.useState(false);
 
-    const [tableName, setTableName] = useState(['Table_0']);
-
-    const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '0', PK: false}]}]);
+    const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '0', PK: false}], numOfRows: '1000'}]);
 
     const [relations, setRelations] = useState([
         { tableId: 0, relations: [] },
@@ -68,14 +58,23 @@ export default function App() {
 
     const handleTableNameChange = (event, tableIndex) => {
         const newTableName = event.target.value;
-        // setTableName(newTableName);
         setTables(prevTables => {
             const updatedTables = [...prevTables];
             updatedTables[tableIndex].tableName = newTableName;
             return updatedTables;
         })
         console.log("TableName changed to:", newTableName);
-    };
+    };  
+
+    const handleNumOfRowsChange = (event, tableIndex) => {
+        const newNumOfRows = event.target.value;
+        setTables(prevTables => {
+            const updatedTables = [...prevTables];
+            updatedTables[tableIndex].numOfRows = newNumOfRows;
+            return updatedTables;
+        })
+        console.log("NumOfRows changed to:", newNumOfRows);
+    }; 
 
     const handleAddTable = () => {
         if (tables.length < 2) {
@@ -83,7 +82,8 @@ export default function App() {
             const newTable = {
                 id: tables.length,
                 tableName: `Table_${tables.length}`,
-                rows: [{ id: 0, name: 'row_number_0', type: 'Row Number', blanks: '0', PK: false }]
+                rows: [{ id: 0, name: 'row_number_0', type: 'Row Number', blanks: '0', PK: false }],
+                numOfRows: '1000'
             };
             setTables(prevTables => [...prevTables, newTable]);
             console.log("All Tables:", tables);
@@ -118,7 +118,6 @@ export default function App() {
             blanks: '0',
             PK: false
         };
-        // setRows(prevRows => [...prevRows, newRow]);
         setTables(prevTables => {
             const updatedTables = [...prevTables];
             updatedTables[tableIndex].rows = [...updatedTables[tableIndex].rows, newRow];
@@ -142,17 +141,16 @@ export default function App() {
     const handlePKChange = (tableIndex, rowIndex) => (event) => {
         setTables(prevTables => prevTables.map((table, tIdx) => {
             if (tIdx === tableIndex) {
-                // Found the targeted table
                 const updatedRows = table.rows.map((row, rIdx) => {
                     if (rIdx === rowIndex) {
-                        // This is the row we want to update
-                        return { ...row, PK: event.target.checked };
+                        const blanksValue = event.target.checked ? "0" : "50";
+                        return { ...row, PK: event.target.checked, blanks: blanksValue };
                     }
-                    return row; // Leave other rows unchanged
+                    return row; 
                 });
-                return { ...table, rows: updatedRows }; // Return the updated table
+                return { ...table, rows: updatedRows }; 
             }
-            return table; // Leave other tables unchanged
+            return table;
         }));
     };
     
@@ -170,7 +168,6 @@ export default function App() {
 
     const handleInputSelectionDialogOpen = (event, tableIndex, index) => {
         console.log("handleInputSelectionDialogOpen called for row", tableIndex, index);
-        // setAnchorEl(index);
         setAnchorEl({ el: event.currentTarget, tableIndex: tableIndex, rowIndex: index });
         setOpen(true);
     };
@@ -181,21 +178,19 @@ export default function App() {
     
         setTables(prevTables => prevTables.map((table, currentTableIndex) => {
             if (currentTableIndex === tableIndex) {
-                // Found the target table, now update the specific row
                 const updatedRows = table.rows.map((row, currentRowIndex) => {
                     if (currentRowIndex === rowIndex) {
-                        // This is the row we want to update
-                        return { ...row, type: typeName, name: newName };
+                        return { ...row, type: typeName, name: newName, blanks: '50', PK:false };
                     }
-                    return row; // Return unmodified rows
+                    return row; 
                 });
     
-                return { ...table, rows: updatedRows }; // Return the updated table
+                return { ...table, rows: updatedRows };
             }
-            return table; // Return unmodified tables
+            return table;
         }));
     
-        handleClose(tableIndex, rowIndex); // Assuming handleClose can also handle tableIndex and rowIndex
+        handleClose(tableIndex, rowIndex);
     };
     
     const handleClose = () => {
@@ -210,7 +205,6 @@ export default function App() {
     );
 
     const handleResetAll = (tableIndex) => {
-        // Define default rows to reset to
         const defaultRows = [{
             id: 0, 
             name: 'row_number_0',
@@ -220,10 +214,9 @@ export default function App() {
     
         setTables(prevTables => prevTables.map((table, idx) => {
             if (idx === tableIndex) {
-                // Reset the rows of the table at tableIndex to defaultRows
                 return { ...table, rows: defaultRows };
             }
-            return table; // Leave other tables unchanged
+            return table; 
         }));
     };
 
@@ -239,7 +232,6 @@ export default function App() {
     };
 
     const handleResetAllTable = () => {
-        // Define default rows to reset to
         const defaultTables = {
             id: 0, 
             tableName: 'Table_0',
@@ -248,10 +240,9 @@ export default function App() {
                 name: 'row_number_0',
                 type: 'Row Number',
                 blanks: '0'
-            }]
+            }],
+            numOfRows: '1000'
         };
-    
-        // Set the state to an array containing just the default table
         setTables([defaultTables]);
     };
     
@@ -339,7 +330,7 @@ export default function App() {
         let sequence = [];
 
         if (types.includes("Sequence")) {
-            sequence = generator.generateSequence(startAt, step, repeat, restartAt, numberOfRowsInOutput);
+            sequence = generator.generateSequence(startAt, step, repeat, restartAt, table.numOfRows);
         }
 
         // For Foreign Key
@@ -353,7 +344,7 @@ export default function App() {
         const generatedISBNArray = Array.from(generatedISBN);
         
         // Repeat types based on numberOfRowsInOutput
-        for (let i = 0; i < numberOfRowsInOutput; i++) {
+        for (let i = 0; i < table.numOfRows; i++) {
             const rowData = types.map((type, index) => {
                 // Determine if this column should be blank for the current row
                 const blankChance = Math.random() * 100;
@@ -640,10 +631,10 @@ export default function App() {
 
             {/* Reset All button */}
             <div style={{display: 'flex', minWidth: 200, alignItems: 'center', marginBottom: '20px', marginLeft: '800px', marginRight: '20px' }}>
-                <Button onClick={handleResetAllTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                <Button onClick={handleResetAllTable} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '5px', marginRight: '10px' }}>
                     Reset All Tables
                 </Button>
-                <Button onClick={handleUpdateFKButtonPressed} disabled={tables.length < 2} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                <Button onClick={handleUpdateFKButtonPressed} disabled={tables.length < 2} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '5px', marginRight: '10px' }}>
                     Update Foreign Key Constraints
                 </Button>
             </div>
@@ -680,7 +671,7 @@ export default function App() {
                         </Button>
                     )}
                     
-                    <Button onClick={()=>handleResetAll(tableIndex)} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
+                    <Button onClick={()=>handleResetAll(tableIndex)} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '5px', marginRight: '10px' }}>
                         Reset All Rows
                     </Button>
           
@@ -691,7 +682,7 @@ export default function App() {
                 <div style={{ minWidth: 220, marginLeft: '10px' }}>Type</div>
                 <div style={{ minWidth: 100, width: 100, marginLeft: '10px' }}>Blanks</div>
                 <div style={{ minWidth: 600, marginLeft: '10px' }}>Other Options</div>
-                <div style={{ minWidth: 0, marginLeft: '10px' }}>Primary Key</div>
+                <div style={{ minWidth: 0, marginLeft: '100px' }}>Primary Key</div>
             </div>
             
             <DragDropContext onDragEnd={(result) => handleDragEnd(result, tableIndex)}>
@@ -743,7 +734,7 @@ export default function App() {
                                                     }}
                                                 />
 
-                    
+                                                {/* Popover Panel */}
                                                 <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
                                                     <Button
                                                     aria-describedby={`popover-${tableIndex}-${index}`} 
@@ -759,9 +750,6 @@ export default function App() {
 
                                                     <Popover
                                                         id={`popover-${tableIndex}-${index}`}
-                                                        // open={open && anchorEl === index}
-                                                        // anchorEl={anchorEl === index? anchorEl : null}
-                                                        // onClose={handleClose}
                                                         open={open && anchorEl.tableIndex === tableIndex && anchorEl.rowIndex === index}
                                                         anchorEl={anchorEl.el}
                                                         onClose={handleClose}
@@ -841,6 +829,8 @@ export default function App() {
                                                             }));
                                                         }
                                                     }}
+                                                    disabled={['Row Number', 'ISBN', 'Hex Colour'].includes(row.type)  && row.PK == true || row.PK}
+
                                                     label=""
                                                     InputProps={{
                                                         type: 'text', // Keep as text to handle input manipulation
@@ -851,17 +841,21 @@ export default function App() {
                                                 />
 
                                                 {/* Other Options */}
-                                                <div style={{ minWidth: 600, marginLeft: '10px'}}>
+                                                <div style={{ minWidth: 650, marginLeft: '10px'}}>
                                                     {renderInputFields(basicInputTypes.find(inputType => inputType.name === tables[tableIndex].rows[index].type))}
                                                 </div>
 
-                                                {/* Primary key switch */}              
-                                                <div key={row.id} style={{ minWidth: 150, marginLeft: '20px'}}>
+                                                {/* Primary key switch */} 
+                                                <div key={row.id} style={{ minWidth: 150, marginLeft: '80px'}}>
+                                                {['Row Number', 'ISBN', 'Hex Colour'].includes(row.type) && (             
+                                                
                                                     <Switch
                                                         checked={row.PK}
                                                         onChange={handlePKChange(tableIndex, index)}
                                                         
                                                     />
+                                                
+                                                )}
                                                 </div>
 
                                                 {/* Delete Button */}
@@ -883,67 +877,64 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px', marginLeft: '50px' }}>
                 <Button onClick={()=>handleAddRow(tableIndex)} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
                     <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
-                    ADD Rows
+                    ADD Fields
                 </Button>
             </div>
 
-            {tables.length > 1 && (
-                <div style={{ margin: '20px 20px', height: '2px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
-            
-            )} 
-
-        </div>
-        ))}
-
-            {/* Add New Table Button */}
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px' }}>
-                <Button onClick={handleAddTable} disabled={tables.length >= 2} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
-                    <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
-                    ADD Tables
-                </Button>
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginLeft: '50px', marginTop: '20px' }}>
+                Number of Rows: 
+                <TextField
+                    sx={{ minWidth: 200, marginLeft: '5px', '& .MuiInputBase-root': {borderRadius: '15px' }}}
+                    value={table.numOfRows}
+                    label=""
+                    variant="outlined"
+                    onChange={(event) => handleNumOfRowsChange(event, tableIndex)}
+                />
             </div>
 
             <div style={{ margin: '20px 20px', height: '2px', width: '95%', backgroundColor: 'rgba(70, 130, 180, 0.5)' }} />
 
-            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '100px' }}>
-                {/* Number of Rows Input */}
-                <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
-                    Number of Rows: 
-                    <TextField
-                        sx={{ minWidth: 200, marginLeft: '5px', '& .MuiInputBase-root': {borderRadius: '15px' }}}
-                        onChange={(e) => {
-                            const newNumOfRows = e.target.value;
-                            setNumberOfRowsInOutput(newNumOfRows);
-                        }}
-                        label=""
-                        variant="outlined"
-                        value={numberOfRowsInOutput}
-                    />
-                </div>
+        </div>
+        
+        ))}
 
-                {/* Format */}
-                <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '100px' }}>
-                    Format: 
-                    <Select 
-                        value={format}
-                        onChange={handleFormatChange}
-                        variant="outlined" 
-                        MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} 
-                        style={{ marginLeft: '10px', marginRight: '10px', borderRadius: '15px' }}
-                    >
-                        <MenuItem value="CSV">CSV</MenuItem>
-                        <MenuItem value="JSON">JSON</MenuItem>
-                        <MenuItem value="SQL">SQL</MenuItem>
-                    </Select>
-                </div>
+        
+        
+        {/* Add New Table Button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px' }}>
+            <Button onClick={handleAddTable} disabled={tables.length >= 2} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', marginRight: '10px' }}>
+                <AddCircleIcon style={{ marginLeft: 'auto', cursor: 'pointer' }} />
+                ADD Tables
+            </Button>
+        </div>
 
-                {/* Generate Data Button with Format Dropdown Picker */}
-                <div style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
-                    <Button onClick={handleDownloadCSV} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '30px', marginRight: '10px' }}>
-                        Generate
-                    </Button>
-                </div>
-            </div>              
+        <div style={{ display: 'flex', alignItems: 'center', marginLeft: '500px' }}>
+
+            {/* Format */}
+            <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px', marginRight: '50px' }}>
+                Format: 
+                <Select 
+                    value={format}
+                    onChange={handleFormatChange}
+                    variant="outlined" 
+                    MenuProps={{ PaperProps: { style: { marginTop: 0 } } }} 
+                    style={{ marginLeft: '10px', marginRight: '10px', borderRadius: '15px' }}
+                >
+                    <MenuItem value="CSV">CSV</MenuItem>
+                    <MenuItem value="JSON">JSON</MenuItem>
+                    <MenuItem value="SQL">SQL</MenuItem>
+                </Select>
+            </div>
+
+
+            {/* Generate Data Button with Format Dropdown Picker */}
+            <div style={{display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
+                <Button onClick={handleDownloadCSV} variant="contained" color="primary" style={{ backgroundColor: '#1E90FF', borderRadius: '5px', marginRight: '10px' }}>
+                    Generate
+                </Button>
+            </div>
+        </div>
+
         </div>
     );
 }
