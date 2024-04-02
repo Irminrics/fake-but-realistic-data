@@ -143,7 +143,7 @@ export default function App() {
             if (tIdx === tableIndex) {
                 const updatedRows = table.rows.map((row, rIdx) => {
                     if (rIdx === rowIndex) {
-                        const blanksValue = event.target.checked ? "0" : "50";
+                        const blanksValue = event.target.checked ? "0" : row.blanks;
                         return { ...row, PK: event.target.checked, blanks: blanksValue };
                     }
                     return row; 
@@ -180,7 +180,7 @@ export default function App() {
             if (currentTableIndex === tableIndex) {
                 const updatedRows = table.rows.map((row, currentRowIndex) => {
                     if (currentRowIndex === rowIndex) {
-                        return { ...row, type: typeName, name: newName, blanks: '50', PK:false };
+                        return { ...row, type: typeName, name: newName, blanks: '0', PK:false };
                     }
                     return row; 
                 });
@@ -497,9 +497,9 @@ export default function App() {
         })
 
         // Reset the unique generated sets
-        generatedRowNumbers = new Set();
-        generatedColors = new Set();
-        generatedISBN = new Set();
+        // generatedRowNumbers = new Set();
+        // generatedColors = new Set();
+        // generatedISBN = new Set();
     };
     
     
