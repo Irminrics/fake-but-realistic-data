@@ -45,7 +45,7 @@ export default function App() {
 
     const [open, setOpen] = React.useState(false);
 
-    const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '50', PK: false}], numOfRows: '1000'}]);
+    const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '0', PK: false}], numOfRows: '1000'}]);
 
     const [relations, setRelations] = useState([
         { tableId: 0, relations: [] },
@@ -82,7 +82,7 @@ export default function App() {
             const newTable = {
                 id: tables.length,
                 tableName: `Table_${tables.length}`,
-                rows: [{ id: 0, name: 'row_number_0', type: 'Row Number', blanks: '50', PK: false }],
+                rows: [{ id: 0, name: 'row_number_0', type: 'Row Number', blanks: '0', PK: false }],
                 numOfRows: '1000'
             };
             setTables(prevTables => [...prevTables, newTable]);
@@ -115,7 +115,7 @@ export default function App() {
             id: tables[tableIndex].rows.length, 
             name: `row_number_${tables[tableIndex].rows.length}`,
             type: 'Row Number',
-            blanks: '50',
+            blanks: '0',
             PK: false
         };
         setTables(prevTables => {
@@ -209,7 +209,7 @@ export default function App() {
             id: 0, 
             name: 'row_number_0',
             type: 'Row Number',
-            blanks: '50'
+            blanks: '0'
         }];
     
         setTables(prevTables => prevTables.map((table, idx) => {
@@ -239,7 +239,7 @@ export default function App() {
                 id: 0,
                 name: 'row_number_0',
                 type: 'Row Number',
-                blanks: '50'
+                blanks: '0'
             }],
             numOfRows: '1000'
         };
@@ -299,15 +299,25 @@ export default function App() {
             }
         }));
     };
-    
+
+    // Set to check uniqueness of row number
+    let generatedRowNumbers = new Set();
+
+    // Set to check uniqueness of color
+    let generatedColors = new Set();
+
+    // Set to check uniqueness of ISBN
+    let generatedISBN = new Set();
+
     // CSV Functions
-    const convertRowsToCSV = (table) => {
+    const convertRowsToCSV = (table, tableIndex) => {
         let csvContent = "data:text/csv;charset=utf-8,";
 
         // Extract field names, types, and blanks percentages
         const headers = table.rows.map(row => row.name);
         const types = table.rows.map(row => row.type);
         const blanksPercentages = table.rows.map(row => row.blanks);
+        const arePrimaryKeys = table.rows.map(row => row.PK);
 
         // Append headers
         csvContent += headers.join(',') + '\r\n';
@@ -323,16 +333,15 @@ export default function App() {
             sequence = generator.generateSequence(startAt, step, repeat, restartAt, table.numOfRows);
         }
 
+        // For Foreign Key
+        const referencingIndex = relations[table.id].relations[0]?.from;
+        const referencedIndex = relations[table.id].relations[0]?.to;
+        const referencedTableTypes = tables[1 - table.id].rows.map(row => row.type);
 
-        // Booleans to decide if hex color and ISBN generation should be unique
-        const isHexColorUnique = true;
-        const isISBNUnique = true;
-
-        // Set to check uniqueness of color
-        const generatedColors = new Set();
-
-        // Set to check uniqueness of ISBN
-        const generatedISBN = new Set();
+        // Converted the unique generated sets to arrays for indexing
+        const generatedRowNumbersArray = Array.from(generatedRowNumbers);
+        const generatedColorsArray = Array.from(generatedColors);
+        const generatedISBNArray = Array.from(generatedISBN);
         
         // Repeat types based on numberOfRowsInOutput
         for (let i = 0; i < table.numOfRows; i++) {
@@ -346,7 +355,22 @@ export default function App() {
                     return '';
                 }
 
+                // (If it's foreign key)
+                // If it's the referencing column and current table to convert is the referencing table
+                if (index == referencingIndex && tableIndex == 1) {
+                    if (referencedTableTypes[referencedIndex] === 'Row Number') {
+                        return generatedRowNumbersArray[Math.floor(Math.random() * generatedRowNumbersArray.length)];
+                    } else if (referencedTableTypes[referencedIndex] === 'Hex Colour') {
+                        return generatedColorsArray[Math.floor(Math.random() * generatedColorsArray.length)];
+                    } else {
+                        return generatedISBNArray[Math.floor(Math.random() * generatedISBNArray.length)];
+                    }
+                }
+
                 if (type === 'Row Number') {
+                    if (arePrimaryKeys[index]) {
+                        generatedRowNumbers.add(i + 1);
+                    }
                     // If type is row number, print the row number
                     return i + 1;
                 } else if (type === 'Address Line') {
@@ -370,7 +394,7 @@ export default function App() {
                     let newColor;
                     do {
                         newColor = generator.generateRandomHexColor();
-                    } while (isHexColorUnique && generatedColors.has(newColor));
+                    } while (arePrimaryKeys[index] && generatedColors.has(newColor));
                     
                     generatedColors.add(newColor);
                         return newColor;
@@ -378,7 +402,7 @@ export default function App() {
                     let newISBN;
                     do {
                         newISBN = generator.generateRandomISBN();
-                    } while (isISBNUnique && generatedISBN.has(newISBN));
+                    } while (arePrimaryKeys[index] && generatedISBN.has(newISBN));
 
                     generatedISBN.add(newISBN);
                     return newISBN;
@@ -454,9 +478,15 @@ export default function App() {
 
     // Function to handle CSV download
     const handleDownloadCSV = () => {
-        tables.forEach((table, index) => {
+        let targetTables = tables;
+
+        if (relations[0].relations.length > 0) {
+            targetTables = [...tables].reverse();
+        }
+
+        targetTables.forEach((table, index) => {
             setTimeout(() => {
-            const csvContent = convertRowsToCSV(table);
+            const csvContent = convertRowsToCSV(table, index);
             const link = document.createElement("a");
             link.setAttribute("href", csvContent);
             // link.setAttribute("download", "data.csv");
@@ -465,6 +495,11 @@ export default function App() {
             link.click();
             }, index * 100); 
         })
+
+        // Reset the unique generated sets
+        generatedRowNumbers = new Set();
+        generatedColors = new Set();
+        generatedISBN = new Set();
     };
     
     
