@@ -62,7 +62,7 @@ export const basicInputTypes = [
     {
         name: 'Normal Distribution',
         description: 'Generates random numbers in a normal distribution using the Box-Muller algorithm',
-        options: ['stddev-text', 'decimals-text']
+        options: ['mean-text', 'stddev-text', 'decimals-text']
     },
     {
         name: 'Number',

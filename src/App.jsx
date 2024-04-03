@@ -503,9 +503,10 @@ export default function App() {
                     const lambda = parseFloat(document.getElementById(`lambda-text`).value) || 1;
                     return generator.generateRandomExponentialDistribution(lambda); 
                 } else if (type === 'Normal Distribution') {
+                    const mean = parseFloat(document.getElementById(`mean-text`).value) || 1;
                     const stddev = parseFloat(document.getElementById(`stddev-text`).value) || 1;
                     const decimals = parseInt(document.getElementById(`decimals-text`).value) || 0;
-                    return generator.generateRandomNormalDistribution(stddev, decimals);
+                    return generator.generateRandomNormalDistribution(mean, stddev, decimals);
                 } else if (type === 'Poisson Distribution') {
                     const mean = parseFloat(document.getElementById(`mean-text`).value) || 1;
                     return generator.generateRandomPoissonDistribution(mean);
