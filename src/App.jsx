@@ -28,12 +28,18 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { CropTwoTone, TypeSpecimen } from '@mui/icons-material';
 import IconButton from "@mui/material/IconButton";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import Switch from '@mui/material/Switch';
 
 import * as generator from './generator';
+
+
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 export default function App() {
     const [format, setFormat] = React.useState('CSV');
@@ -46,7 +52,37 @@ export default function App() {
     const [open, setOpen] = React.useState(false);
 
     const [tables, setTables] = useState([{id: 0, tableName: 'Table_0', rows:[{id: 0, name: 'row_number_0', type: 'Row Number', blanks: '0', PK: false}], numOfRows: '1000'}]);
+    const [isDuplicateName, setIsDuplicateName] = useState(tables.map(() => false));
 
+    const [showErrorPopup, setShowErrorPopup] = useState(false);
+    const [popupErrorMessage, setPopupErrorMessage] = useState('');
+
+    const handleFieldNameChange = (newFieldName, rowIndex, tableIndex) => {
+        setTables((prevTables) => {
+            return prevTables.map((table, tIdx) => {
+                if (tIdx === tableIndex) {
+                    const nameIsDuplicate = table.rows.some((row, rIdx) => 
+                        rIdx !== rowIndex && 
+                        row.name.trim().toLowerCase() === newFieldName.trim().toLowerCase()
+                    );
+        
+                    if (nameIsDuplicate) {
+                        setPopupErrorMessage(`"${newFieldName}" is specified more than once. Field names must be unique.`);
+                        setShowErrorPopup(true);
+                    } else {
+                        const updatedRows = table.rows.map((row, rIdx) => (
+                            rIdx === rowIndex ? { ...row, name: newFieldName } : row
+                        ));
+                        return { ...table, rows: updatedRows };
+                    }
+                    return table;
+                }
+                return table;
+            });
+        });
+    };
+    
+    
     const [relations, setRelations] = useState([
         { tableId: 0, relations: [] },
         { tableId: 1, relations: [] }
@@ -58,13 +94,27 @@ export default function App() {
 
     const handleTableNameChange = (event, tableIndex) => {
         const newTableName = event.target.value;
-        setTables(prevTables => {
-            const updatedTables = [...prevTables];
-            updatedTables[tableIndex].tableName = newTableName;
-            return updatedTables;
-        })
+
+        // Check if the new name exists in any other table (excluding the current one)
+        const nameExists = tables.some((table, index) => 
+        index !== tableIndex && table.tableName.toLowerCase() === newTableName.toLowerCase());
+
+        // Update the duplicate status for the current table
+        setIsDuplicateName(duplicates => duplicates.map((dup, idx) => 
+            idx === tableIndex ? nameExists : dup));
+
+        if (!nameExists) {
+            setTables(prevTables => prevTables.map((table, index) => 
+                index === tableIndex ? { ...table, tableName: newTableName } : table));
+        }
+
         console.log("TableName changed to:", newTableName);
     };  
+
+    useEffect(() => {
+        setIsDuplicateName(tables.map(() => false));
+    }, [tables]);
+    
 
     const handleNumOfRowsChange = (event, tableIndex) => {
         const newNumOfRows = event.target.value;
@@ -90,7 +140,6 @@ export default function App() {
         }
     };
 
-    // useEffect hook to log 'tables' state on update
     useEffect(() => {
         console.log("All Tables:", tables);
     }, [tables]);
@@ -134,7 +183,7 @@ export default function App() {
                 const updatedRows = table.rows.filter((_, rowIndex) => rowIndex !== rowIndexToDelete);
                 return { ...table, rows: updatedRows };
             }
-            return table; // For other tables, return them as they are
+            return table;
         }));
     };
 
@@ -336,7 +385,7 @@ export default function App() {
         // For Foreign Key
         const referencingIndex = relations[table.id].relations[0]?.from;
         const referencedIndex = relations[table.id].relations[0]?.to;
-        const referencedTableTypes = tables[1 - table.id].rows.map(row => row.type);
+        const referencedTableTypes = tables[1 - table.id]?.rows.map(row => row.type);
 
         // Converted the unique generated sets to arrays for indexing
         const generatedRowNumbersArray = Array.from(generatedRowNumbers);
@@ -497,9 +546,9 @@ export default function App() {
         })
 
         // Reset the unique generated sets
-        // generatedRowNumbers = new Set();
-        // generatedColors = new Set();
-        // generatedISBN = new Set();
+        generatedRowNumbers = new Set();
+        generatedColors = new Set();
+        generatedISBN = new Set();
     };
     
     
@@ -663,6 +712,8 @@ export default function App() {
                         // onChange={handleTableNameChange} 
                         onChange={(event) => handleTableNameChange(event, tableIndex)} 
                     />
+                    
+                    
 
                     {/* <div style={{ minWidth: 50, marginLeft: '10px' }}> {tableName.name} </div> */}
                     {tables.length > 1 && (
@@ -676,6 +727,12 @@ export default function App() {
                     </Button>
           
                 </div>
+                {isDuplicateName[tableIndex] && (
+                    <div style={{ color: 'red', marginBottom: '10px', marginLeft: '120px' }}>
+                        The table name is repeated!
+                    </div>
+                )}
+                
             
             <div style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', marginBottom: '10px' }}>
                 <div style={{ minWidth: 300, marginLeft: '60px' }}>Field Name</div>
@@ -712,28 +769,35 @@ export default function App() {
                                                     id={`field-name-${index}`}
                                                     sx={{ minWidth: 300, marginLeft: '10px' }}
                                                     value={row.name}
-                                                    onChange={(e) => {
-                                                        const newName = e.target.value;
-                                                        setTables(prevTables => prevTables.map((table, tIdx) => {
-                                                            if (tIdx === tableIndex) { // Check if this is the table we want to update
-                                                                // Now update the specific row within this table
-                                                                const updatedRows = table.rows.map((r, rIdx) => {
-                                                                    if (rIdx === index) { // Find the specific row by index
-                                                                        return { ...r, name: newName }; // Update the name of this row
-                                                                    }
-                                                                    return r; // Leave other rows unchanged
-                                                                });
-                                                                return { ...table, rows: updatedRows }; // Return the updated table with modified rows
-                                                            }
-                                                            return table; // Leave other tables unchanged
-                                                        }));
-                                                    }}
+                                                    onChange={(e) => handleFieldNameChange(e.target.value, index, tableIndex)}
+                                                
                                                     variant="outlined"
                                                     InputProps={{
                                                         style: { borderRadius: '15px' }
                                                     }}
                                                 />
 
+                                                {showErrorPopup && (
+                                                    <Dialog
+                                                        open={showErrorPopup}
+                                                        onClose={() => setShowErrorPopup(false)}
+                                                        aria-labelledby="alert-dialog-title"
+                                                        aria-describedby="alert-dialog-description"
+                                                    >
+                                                        <DialogTitle id="alert-dialog-title">Error</DialogTitle>
+                                                        <DialogContent>
+                                                            <DialogContentText id="alert-dialog-description">
+                                                                {popupErrorMessage}
+                                                            </DialogContentText>
+                                                        </DialogContent>
+                                                        <DialogActions>
+                                                            <Button onClick={() => setShowErrorPopup(false)} color="primary" autoFocus>
+                                                                Close
+                                                            </Button>
+                                                        </DialogActions>
+                                                    </Dialog>
+                                                )}
+                                                
                                                 {/* Popover Panel */}
                                                 <FormControl sx={{ minWidth: 220, marginLeft: '10px' }}>
                                                     <Button
@@ -825,7 +889,7 @@ export default function App() {
                                                                     });
                                                                     return { ...table, rows: updatedRows };
                                                                 }
-                                                                return table; // Other tables remain unchanged
+                                                                return table; 
                                                             }));
                                                         }
                                                     }}
@@ -872,6 +936,7 @@ export default function App() {
                     )}
                 </Droppable>
             </DragDropContext>
+
 
             {/* Add New Row Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', marginTop: '20px', marginLeft: '50px' }}>
@@ -921,8 +986,7 @@ export default function App() {
                     style={{ marginLeft: '10px', marginRight: '10px', borderRadius: '15px' }}
                 >
                     <MenuItem value="CSV">CSV</MenuItem>
-                    <MenuItem value="JSON">JSON</MenuItem>
-                    <MenuItem value="SQL">SQL</MenuItem>
+                    
                 </Select>
             </div>
 
