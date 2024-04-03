@@ -20,11 +20,6 @@ export const basicInputTypes = [
         options: []
     },
     {
-        name: 'Custom List',
-        description: 'Picks items randomly or sequentially from a custom list of values',
-        options: ['custom-list-text', 'custom-list-dropdown']
-    },
-    {
         name: 'Datetime',
         description: '13/03/2024 3.13.2024 13-Mar-2024',
         options: ['date-time-picker', 'date-time-format-picker']
