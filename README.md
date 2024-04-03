@@ -21,4 +21,4 @@
    ➜  press h + enter to show help
    ```
 
-4. Access the application via a browser (eg Chrome or Safari) with the provided link (eg. http://localhost:5173/).
+4. Access the application via a browser (eg. Chrome or Safari) with the provided link (eg. http://localhost:5173/).
